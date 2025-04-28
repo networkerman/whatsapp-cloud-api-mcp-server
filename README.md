@@ -71,6 +71,36 @@ Sends a WhatsApp message to a specified phone number.
 }
 ```
 
+## Available Resources
+
+### contacts
+Returns a list of contacts with their names and phone numbers.
+
+**URI**: `resource://contacts`
+
+**Example Response**:
+```json
+[
+    {"name": "João da Silva", "phone_number": "+55629999999999"}
+]
+```
+
+## Demo
+
+Here are some screenshots demonstrating the WhatsApp Message Sender MCP Tool in action:
+
+### Sending a Message
+![Sending a WhatsApp message](https://github.com/user-attachments/assets/58fc3c58-b584-4d7f-9646-c4eb23c2af81)
+
+### Receiving a Message
+![Receiving a WhatsApp message](https://github.com/user-attachments/assets/c9e6a5d3-e488-4900-a222-6fff1e403f28)
+
+### Using the Contacts Resource
+![Accessing the contacts resource](https://github.com/user-attachments/assets/dd13c180-d286-4284-bb9c-f086b321f1b4)
+
+### Received Message
+![Received Message](https://github.com/user-attachments/assets/d5862915-1787-4c95-81c1-8eca7388bdc3)
+
 ## Troubleshooting
 
 ### Common Issues
@@ -111,15 +141,3 @@ mcp-server-whatsapp-message/
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
-
-## Prints:
-sending:
-![image](https://github.com/user-attachments/assets/58fc3c58-b584-4d7f-9646-c4eb23c2af81)
-
-receiveing:
-![image](https://github.com/user-attachments/assets/c9e6a5d3-e488-4900-a222-6fff1e403f28)
-
-Using resource provided by server:
-![image](https://github.com/user-attachments/assets/dd13c180-d286-4284-bb9c-f086b321f1b4)
-
-![image](https://github.com/user-attachments/assets/d5862915-1787-4c95-81c1-8eca7388bdc3)
