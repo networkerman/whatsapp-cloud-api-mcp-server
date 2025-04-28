@@ -116,7 +116,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 sending:
 ![image](https://github.com/user-attachments/assets/58fc3c58-b584-4d7f-9646-c4eb23c2af81)
 
-receiveng:
+receiveing:
 ![image](https://github.com/user-attachments/assets/c9e6a5d3-e488-4900-a222-6fff1e403f28)
 
 Using resource provided by server:
