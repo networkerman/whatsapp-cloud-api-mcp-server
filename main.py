@@ -16,7 +16,7 @@ mcp = FastMCP(title="WhatsApp Message Sender")
 
 # Define contacts resource
 contacts = [
-    {"name": "Deuslirio Junior", "phone_number": "+55629999999999"},
+    {"name": "João da Silva", "phone_number": "+55629999999999"},
 ]
 
 @mcp.tool()
