@@ -25,18 +25,27 @@ LinkedIn: [@udayan-das-chowdhury8329](https://www.linkedin.com/in/udayan-das-cho
 ### 📱 **Based on Official API**
 Built from the official [WhatsApp Cloud API Postman collection](https://www.postman.com/meta/whatsapp-business-platform/collection/wlk6lh4/whatsapp-cloud-api), ensuring 100% API compatibility and coverage.
 
-## Requirements
+## 🚀 Quick Start Installation
 
-- Python 3.12 or higher
-- uv (Python package manager)
-- Meta WhatsApp Business API credentials
+> **Important:** This is a comprehensive WhatsApp Cloud API MCP server that requires proper setup to function correctly.
 
-## Installation
+### Prerequisites
 
-1. Install dependencies using uv:
-```bash
-uv pip install -e .
-```
+- **Python 3.12 or higher** - Required for modern async support
+- **uv (Python package manager)** - Fast Python package installer
+- **Meta WhatsApp Business API credentials** - Get these from [Meta Business](https://business.facebook.com/)
+
+### Step-by-Step Installation
+
+1. **Install dependencies:**
+   ```bash
+   uv pip install -e .
+   ```
+
+2. **Verify installation:**
+   ```bash
+   uv run python -c "import mcp_server; print('Installation successful!')"
+   ```
 
 ## Environment Variables
 
@@ -194,22 +203,6 @@ await create_message_template(
     footer_text="Thank you for your business"
 )
 ```
-
-## Demo
-
-Here are some screenshots demonstrating the WhatsApp Message Sender MCP Tool in action:
-
-### Sending a Message
-![Sending a WhatsApp message](https://github.com/user-attachments/assets/58fc3c58-b584-4d7f-9646-c4eb23c2af81)
-
-### Receiving a Message
-![Receiving a WhatsApp message](https://github.com/user-attachments/assets/c9e6a5d3-e488-4900-a222-6fff1e403f28)
-
-### Using the Contacts Resource
-![Accessing the contacts resource](https://github.com/user-attachments/assets/dd13c180-d286-4284-bb9c-f086b321f1b4)
-
-### Received Message
-![Received Message](https://github.com/user-attachments/assets/d5862915-1787-4c95-81c1-8eca7388bdc3)
 
 ## Troubleshooting
 
