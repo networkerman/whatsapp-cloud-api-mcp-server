@@ -93,6 +93,13 @@ async def startup_event():
         logger.info("📚 See deployment documentation: https://github.com/networkerman/whatsapp-cloud-api-mcp-server#deployment")
         return
     
+    # Optional but recommended for full functionality
+    optional_vars = ["META_BUSINESS_ACCOUNT_ID", "WABA_ID"]
+    missing_optional = [var for var in optional_vars if not os.getenv(var)]
+    if missing_optional:
+        logger.info(f"ℹ️  Optional environment variables not set: {missing_optional}")
+        logger.info("💡 Set both META_BUSINESS_ACCOUNT_ID and WABA_ID for maximum API compatibility")
+    
     try:
         messaging_handler = MessagingHandler()
         template_handler = TemplateHandler()

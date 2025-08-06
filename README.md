@@ -56,8 +56,9 @@ Set up your WhatsApp Business API credentials:
 META_ACCESS_TOKEN=your_access_token_here
 META_PHONE_NUMBER_ID=your_phone_number_id_here
 
-# Required for templates and business operations  
-META_BUSINESS_ACCOUNT_ID=your_business_account_id_here
+# Business Account IDs (recommended to set both for maximum compatibility)
+META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here  # For templates and business operations
+WABA_ID=your_waba_id_here                                    # For phone numbers and WABA operations
 
 # Optional - API version (defaults to v22.0)
 WHATSAPP_API_VERSION=v22.0
@@ -194,10 +195,13 @@ docker-compose up -d
 ### 🔧 Environment Variables for Deployment
 
 ```bash
-# Required
+# Required for all operations
 META_ACCESS_TOKEN=your_meta_access_token
 META_PHONE_NUMBER_ID=your_phone_number_id
-META_BUSINESS_ACCOUNT_ID=your_business_account_id
+
+# Business Account IDs (use both for maximum compatibility)
+META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id  # For templates and business operations
+WABA_ID=your_waba_id                                    # For phone numbers and WABA operations
 
 # Server Config
 HTTP_SERVER_HOST=0.0.0.0  # For public access

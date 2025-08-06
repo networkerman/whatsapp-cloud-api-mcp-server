@@ -10,8 +10,9 @@ class BusinessHandler(BaseWhatsAppHandler):
     
     def __init__(self):
         super().__init__()
-        if not self.business_account_id:
-            raise ValueError("META_BUSINESS_ACCOUNT_ID environment variable is required for business operations")
+        # Business operations can work with either META_BUSINESS_ACCOUNT_ID or WABA_ID
+        if not (self.business_account_id or self.waba_id):
+            raise ValueError("Either META_BUSINESS_ACCOUNT_ID or WABA_ID environment variable is required for business operations")
     
     # ================================
     # WABA (WhatsApp Business Account) OPERATIONS
@@ -47,20 +48,35 @@ class BusinessHandler(BaseWhatsAppHandler):
     
     async def get_phone_numbers(self) -> Dict[str, Any]:
         """Get all phone numbers associated with the WABA"""
-        # Try with current business_account_id first
-        try:
-            return await self._make_request("GET", self.phone_numbers_url)
-        except Exception as e:
-            # If that fails, it might be a permissions issue
-            # Return a helpful error message with suggestions
+        if not hasattr(self, 'phone_numbers_url'):
             return {
                 "status": "error",
-                "message": "Unable to access phone numbers. This might be due to API permissions or incorrect business account ID.",
+                "message": "Phone numbers endpoint not configured",
                 "suggestions": [
-                    "Verify your META_BUSINESS_ACCOUNT_ID is correct",
+                    "Set WABA_ID environment variable",
+                    "Or ensure META_BUSINESS_ACCOUNT_ID is set"
+                ]
+            }
+        
+        try:
+            result = await self._make_request("GET", self.phone_numbers_url)
+            return result
+        except Exception as e:
+            # Provide helpful error information
+            waba_used = self.waba_id or self.business_account_id
+            return {
+                "status": "error",
+                "message": f"Unable to access phone numbers using ID: {waba_used}",
+                "endpoint_used": self.phone_numbers_url,
+                "suggestions": [
+                    "Verify your WABA_ID is correct" if self.waba_id else "Try setting WABA_ID environment variable",
                     "Check if your access token has the required permissions",
-                    "Try using your WABA ID instead of Meta Business Account ID"
+                    "Ensure the ID has access to phone_numbers field"
                 ],
+                "ids_available": {
+                    "waba_id": self.waba_id,
+                    "business_account_id": self.business_account_id
+                },
                 "error": str(e)
             }
     

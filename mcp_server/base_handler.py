@@ -14,6 +14,7 @@ class BaseWhatsAppHandler:
         self.access_token = os.getenv("META_ACCESS_TOKEN")
         self.phone_number_id = os.getenv("META_PHONE_NUMBER_ID")
         self.business_account_id = os.getenv("META_BUSINESS_ACCOUNT_ID")
+        self.waba_id = os.getenv("WABA_ID")
         self.api_version = os.getenv("WHATSAPP_API_VERSION", "v22.0")
         
         # Validate required environment variables
@@ -27,11 +28,17 @@ class BaseWhatsAppHandler:
         self.messages_url = f"{self.base_url}/{self.phone_number_id}/messages"
         self.media_url = f"{self.base_url}/{self.phone_number_id}/media"
         
+        # Templates and business operations use META_BUSINESS_ACCOUNT_ID
         if self.business_account_id:
             self.templates_url = f"{self.base_url}/{self.business_account_id}/message_templates"
-            # Phone numbers should use WABA ID (which is stored in business_account_id for phone operations)
-            self.phone_numbers_url = f"{self.base_url}/{self.business_account_id}/phone_numbers"
-            self.subscriptions_url = f"{self.base_url}/{self.business_account_id}/subscribed_apps"
+            self.business_profile_url = f"{self.base_url}/{self.business_account_id}"
+            
+        # Phone numbers and WABA operations use WABA_ID (fallback to business_account_id if not set)
+        waba_for_operations = self.waba_id or self.business_account_id
+        if waba_for_operations:
+            self.phone_numbers_url = f"{self.base_url}/{waba_for_operations}/phone_numbers"
+            self.subscriptions_url = f"{self.base_url}/{waba_for_operations}/subscribed_apps"
+            self.waba_info_url = f"{self.base_url}/{waba_for_operations}"
         
     def _prepare_headers(self, content_type: str = "application/json") -> Dict[str, str]:
         """Prepare standard headers for API requests"""
