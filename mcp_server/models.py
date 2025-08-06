@@ -375,3 +375,111 @@ class MediaInfo(BaseModel):
     file_size: int
     id: str
     messaging_product: str
+
+# ================================
+# FLOW MODELS
+# ================================
+
+class FlowCategory(str, Enum):
+    """Flow categories"""
+    SIGN_UP = "SIGN_UP"
+    SIGN_IN = "SIGN_IN"
+    APPOINTMENT_BOOKING = "APPOINTMENT_BOOKING"
+    CONTACT_US = "CONTACT_US"
+    OTHER = "OTHER"
+
+class FlowStatus(str, Enum):
+    """Flow status"""
+    DRAFT = "DRAFT"
+    PUBLISHED = "PUBLISHED"
+
+class FlowPreview(BaseModel):
+    """Flow preview model"""
+    preview_url: str
+    expires_at: str
+
+class FlowValidationError(BaseModel):
+    """Flow validation error model"""
+    code: str
+    message: str
+    field: Optional[str] = None
+
+class FlowObject(BaseModel):
+    """Flow object model"""
+    id: str
+    name: str
+    categories: List[FlowCategory]
+    status: FlowStatus
+    validation_errors: List[FlowValidationError] = []
+    json_version: Optional[str] = None
+    data_api_version: Optional[str] = None
+    data_channel_uri: Optional[str] = None
+    health_status: Optional[str] = None
+    preview: Optional[FlowPreview] = None
+
+# ================================
+# ANALYTICS MODELS
+# ================================
+
+class AnalyticsGranularity(str, Enum):
+    """Analytics granularity"""
+    DAY = "DAY"
+    HOUR = "HOUR"
+    MONTH = "MONTH"
+    MONTHLY = "MONTHLY"
+
+class AnalyticsDataPoint(BaseModel):
+    """Analytics data point model"""
+    start: int
+    end: int
+    sent: Optional[int] = None
+    delivered: Optional[int] = None
+    read: Optional[int] = None
+    failed: Optional[int] = None
+
+class ConversationDirection(str, Enum):
+    """Conversation direction"""
+    BUSINESS_INITIATED = "business_initiated"
+    USER_INITIATED = "user_initiated"
+
+class ConversationType(str, Enum):
+    """Conversation type"""
+    FREE_ENTRY_POINT = "free_entry_point"
+    FREE_TIER = "free_tier"
+    REGULAR = "regular"
+
+class AnalyticsResponse(BaseModel):
+    """Analytics response model"""
+    phone_numbers: List[str] = []
+    country_codes: List[str] = []
+    granularity: AnalyticsGranularity
+    data_points: List[AnalyticsDataPoint]
+
+# ================================
+# BUSINESS ACCOUNT MODELS
+# ================================
+
+class AccountReviewStatus(str, Enum):
+    """Account review status"""
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+class AccountType(str, Enum):
+    """Account type"""
+    BUSINESS = "BUSINESS"
+    ENTERPRISE = "ENTERPRISE"
+
+class WABAObject(BaseModel):
+    """WABA object model"""
+    id: str
+    name: str
+    currency: str
+    timezone_id: str
+    message_template_namespace: Optional[str] = None
+    account_review_status: AccountReviewStatus
+    account_type: AccountType
+    owner_business_info: Optional[Dict[str, Any]] = None
+    owner_business: Optional[Dict[str, Any]] = None
+    primary_funding_id: Optional[str] = None
+    owner: Optional[Dict[str, Any]] = None

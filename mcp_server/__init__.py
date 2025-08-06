@@ -11,6 +11,10 @@ from .messaging_handler import MessagingHandler
 from .template_handler import TemplateHandler
 from .business_handler import BusinessHandler
 from .media_handler import MediaHandler
+from .flow_handler import FlowHandler
+from .analytics_handler import AnalyticsHandler
+from .webhook_handler import WebhookHandler
+from .business_account_handler import BusinessAccountHandler
 
 # Models
 from .models import (
@@ -27,12 +31,15 @@ __all__ = [
     
     # Handlers
     'BaseWhatsAppHandler', 'MessagingHandler', 'TemplateHandler', 
-    'BusinessHandler', 'MediaHandler',
+    'BusinessHandler', 'MediaHandler', 'FlowHandler', 'AnalyticsHandler',
+    'WebhookHandler', 'BusinessAccountHandler',
     
     # Models
     'WhatsAppMessageRequest', 'MessageType', 'InteractiveType',
     'TemplateObject', 'TemplateComponent', 'TemplateParameter',
     'MediaObject', 'LocationObject', 'ContactObject', 'InteractiveObject',
     'MessageTemplate', 'TemplateCategory', 'BusinessProfile',
-    'ApiResponse', 'MessageResponse'
+    'ApiResponse', 'MessageResponse', 'FlowObject', 'FlowCategory', 'FlowStatus',
+    'AnalyticsResponse', 'AnalyticsGranularity', 'WABAObject', 'AccountReviewStatus',
+    'AccountType', 'WebhookSubscription'
 ] 

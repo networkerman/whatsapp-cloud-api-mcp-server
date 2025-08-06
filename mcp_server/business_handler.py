@@ -123,6 +123,33 @@ class BusinessHandler(BaseWhatsAppHandler):
         payload = {"pin": pin}
         return await self._make_request("POST", url, payload)
     
+    async def get_phone_number_by_id(self, phone_number_id: str) -> Dict[str, Any]:
+        """Get details of a specific phone number"""
+        url = f"{self.base_url}/{phone_number_id}"
+        return await self._make_request("GET", url)
+    
+    async def get_display_name_status(self, phone_number_id: str) -> Dict[str, Any]:
+        """Get display name status for a phone number (Beta)"""
+        url = f"{self.base_url}/{phone_number_id}"
+        params = {"fields": "display_name_status"}
+        return await self._make_request("GET", url, params=params)
+    
+    async def get_phone_numbers_with_filtering(
+        self,
+        limit: int = 100,
+        after: Optional[str] = None,
+        before: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Get phone numbers with filtering (beta)"""
+        params = {"limit": limit}
+        
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+            
+        return await self._make_request("GET", self.phone_numbers_url, params=params)
+    
     # ================================
     # BUSINESS PROFILE OPERATIONS
     # ================================
