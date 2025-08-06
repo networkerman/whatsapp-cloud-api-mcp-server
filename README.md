@@ -90,6 +90,136 @@ Add to your Claude configuration:
 }
 ```
 
+## 🌐 Remote Deployment Options
+
+### Option 1: HTTP REST API Server (Recommended for Public Access)
+
+Deploy as a traditional HTTP REST API that can be accessed from anywhere:
+
+```bash
+# Run locally
+python server_http.py
+
+# Or use the deployment script
+./deploy.sh
+```
+
+**Features:**
+- 🌐 Standard HTTP REST API (Port 8080)
+- 📚 Auto-generated API documentation at `/docs`
+- 🔍 Health checks at `/health`
+- 🧭 CORS enabled for web clients
+- 📱 All WhatsApp operations via HTTP endpoints
+
+**API Endpoints:**
+- `POST /api/v1/messaging/send-text` - Send text messages
+- `POST /api/v1/messaging/send-image` - Send images
+- `POST /api/v1/templates/send` - Send template messages
+- `GET /api/v1/templates/` - List templates
+- `GET /api/v1/business/profile` - Get business profile
+
+### Option 2: SSE MCP Server
+
+Deploy with Server-Sent Events for MCP protocol compatibility:
+
+```bash
+# Run locally
+python server_sse.py
+
+# Access via SSE endpoint
+# http://localhost:8000/sse
+```
+
+**Features:**
+- 📡 Native MCP protocol support (Port 8000)
+- 🔄 Real-time bidirectional communication
+- 🛠️ Full tool and resource support
+- 🔌 Compatible with MCP clients
+
+### 🐳 Docker Deployment
+
+#### Quick Start with Docker
+```bash
+# Copy environment template
+cp .env.example .env
+# Edit .env with your WhatsApp credentials
+
+# HTTP Server
+docker build -t whatsapp-mcp .
+docker run -p 8080:8080 --env-file .env whatsapp-mcp python server_http.py
+
+# SSE Server
+docker run -p 8000:8000 --env-file .env whatsapp-mcp python server_sse.py
+```
+
+#### Docker Compose (Production Ready)
+```bash
+# HTTP Server only
+docker-compose up whatsapp-mcp-http
+
+# SSE Server only
+docker-compose --profile sse up whatsapp-mcp-sse
+
+# Both servers
+docker-compose --profile sse up
+```
+
+### ☁️ Cloud Deployment
+
+#### Railway (Recommended)
+1. Connect your GitHub repository to Railway
+2. Set environment variables in Railway dashboard
+3. Deploy automatically
+
+#### Heroku
+1. Create `Procfile`: `web: python server_http.py`
+2. Set Config Vars with environment variables
+3. Deploy via Git
+
+#### Digital Ocean App Platform
+1. Connect GitHub repository
+2. Configure environment variables
+3. Auto-deploy on push
+
+#### VPS Deployment
+```bash
+# On your VPS
+git clone https://github.com/your-username/whatsapp-cloud-api-mcp-server.git
+cd whatsapp-cloud-api-mcp-server
+cp .env.example .env
+# Edit .env with your credentials
+docker-compose up -d
+```
+
+### 🔧 Environment Variables for Deployment
+
+```bash
+# Required
+META_ACCESS_TOKEN=your_meta_access_token
+META_PHONE_NUMBER_ID=your_phone_number_id
+META_BUSINESS_ACCOUNT_ID=your_business_account_id
+
+# Server Config
+HTTP_SERVER_HOST=0.0.0.0  # For public access
+HTTP_SERVER_PORT=8080
+MCP_SERVER_HOST=0.0.0.0
+MCP_SERVER_PORT=8000
+```
+
+### 🚀 Quick Deployment Script
+
+Use the included deployment script for easy setup:
+
+```bash
+./deploy.sh
+```
+
+This interactive script guides you through:
+- Environment validation
+- Server mode selection (HTTP/SSE)
+- Docker deployment options
+- Cloud deployment guidance
+
 ## Available Tools
 
 ### 📝 **Text Messaging**
