@@ -37,6 +37,22 @@ class WhatsAppMCPServer:
         self.business_handler = None
         self.media_handler = None
         
+        # Check environment variables
+        required_vars = ["META_ACCESS_TOKEN", "META_PHONE_NUMBER_ID"]
+        missing_vars = [var for var in required_vars if not os.getenv(var)]
+        
+        if missing_vars:
+            logger.warning(f"⚠️  Missing required environment variables: {missing_vars}")
+            logger.info("🔧 SSE server will run in demo mode - configure environment variables to enable WhatsApp functionality")
+            return
+        
+        # Optional but recommended for full functionality
+        optional_vars = ["META_BUSINESS_ACCOUNT_ID", "WABA_ID"]
+        missing_optional = [var for var in optional_vars if not os.getenv(var)]
+        if missing_optional:
+            logger.info(f"ℹ️  Optional environment variables not set: {missing_optional}")
+            logger.info("💡 Set both META_BUSINESS_ACCOUNT_ID and WABA_ID for maximum API compatibility")
+        
         # Initialize handlers
         try:
             self.messaging_handler = MessagingHandler()
@@ -44,8 +60,10 @@ class WhatsAppMCPServer:
             self.business_handler = BusinessHandler()
             self.media_handler = MediaHandler()
             logger.info("✅ All handlers initialized successfully")
+            logger.info("🚀 WhatsApp Cloud API functionality is active")
         except Exception as e:
-            logger.error(f"❌ Handler initialization failed: {e}")
+            logger.warning(f"⚠️  Handler initialization failed: {e}")
+            logger.info("🔧 SSE server running in demo mode - check your WhatsApp API credentials")
             
     async def list_tools(self) -> ListToolsResult:
         """List all available tools."""
@@ -153,24 +171,17 @@ class WhatsAppMCPServer:
             return ReadResourceResult(contents=[{"type": "text", "text": f"Resource not found: {uri}"}])
 
 async def main():
-    # Validate environment variables
-    required_vars = ["META_ACCESS_TOKEN", "META_PHONE_NUMBER_ID"]
-    missing_vars = [var for var in required_vars if not os.getenv(var)]
-    
-    if missing_vars:
-        logger.error(f"❌ Missing required environment variables: {missing_vars}")
-        return
-    
-    # Create server instance
+    # Create server instance (handles its own environment validation)
     server = WhatsAppMCPServer()
     
     # Create transport
-    host = os.getenv("MCP_SERVER_HOST", "localhost")
+    host = os.getenv("MCP_SERVER_HOST", "0.0.0.0")
     port = int(os.getenv("MCP_SERVER_PORT", "8000"))
     
     logger.info(f"🚀 Starting WhatsApp MCP Server with SSE transport")
     logger.info(f"🌐 Server will be available at: http://{host}:{port}")
     logger.info(f"📡 SSE endpoint: http://{host}:{port}/sse")
+    logger.info(f"🔍 Health check: http://{host}:{port}/health")
     
     # Start server
     transport = SseServerTransport(host=host, port=port)
@@ -183,15 +194,16 @@ async def main():
             "read_resource": server.read_resource,
         })
         
-        logger.info("✅ Server started successfully!")
-        logger.info("🔗 Connect your MCP client to the SSE endpoint")
+        logger.info("✅ SSE Server started successfully!")
+        logger.info("🔗 Connect your MCP client (ElevenLabs) to the SSE endpoint")
+        logger.info("📋 For ElevenLabs: Use this URL in SSE mode")
         
         try:
             await session.run()
         except KeyboardInterrupt:
-            logger.info("🛑 Server stopped by user")
+            logger.info("🛑 SSE Server stopped by user")
         except Exception as e:
-            logger.error(f"❌ Server error: {e}")
+            logger.error(f"❌ SSE Server error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
