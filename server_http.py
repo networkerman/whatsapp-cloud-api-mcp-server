@@ -6,10 +6,11 @@ Deploys the MCP server as a traditional HTTP REST API for maximum compatibility.
 
 import os
 import logging
+import asyncio
 from typing import Dict, Any, List, Optional
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import uvicorn
@@ -300,6 +301,70 @@ async def get_contacts():
         {"name": "Test Contact", "phone_number": "+1234567890"},
     ]
     return {"status": "success", "data": contacts}
+
+# ================================
+# SSE ENDPOINT FOR MCP CLIENTS
+# ================================
+
+@app.get("/sse")
+async def sse_endpoint(request: Request):
+    """SSE endpoint for MCP client communication (ElevenLabs, etc.)."""
+    
+    async def event_stream():
+        try:
+            import json
+            
+            # Send initial connection message
+            yield f"data: {json.dumps({'type': 'connected', 'service': 'WhatsApp Cloud API MCP Server'})}\n\n"
+            
+            # Send available tools
+            tools = [
+                {
+                    "name": "send_text_message",
+                    "description": "Send a WhatsApp text message",
+                    "parameters": {
+                        "phone_number": "string",
+                        "message": "string", 
+                        "preview_url": "boolean"
+                    }
+                },
+                {
+                    "name": "send_template_message", 
+                    "description": "Send a WhatsApp template message",
+                    "parameters": {
+                        "phone_number": "string",
+                        "template_name": "string",
+                        "language_code": "string",
+                        "body_parameters": "array"
+                    }
+                }
+            ]
+            
+            yield f"data: {json.dumps({'type': 'tools', 'tools': tools})}\n\n"
+            
+            # Keep connection alive
+            while True:
+                if await request.is_disconnected():
+                    break
+                
+                # Send heartbeat every 30 seconds
+                yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': 'alive'})}\n\n"
+                await asyncio.sleep(30)
+                
+        except Exception as e:
+            logger.error(f"SSE stream error: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
 if __name__ == "__main__":
     host = os.getenv("HTTP_SERVER_HOST", "0.0.0.0")
