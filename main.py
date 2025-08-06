@@ -19,6 +19,25 @@ business_handler = None
 media_handler = None
 legacy_handler = None
 
+# Check for required environment variables first
+required_vars = ["META_ACCESS_TOKEN", "META_PHONE_NUMBER_ID"]
+missing_vars = [var for var in required_vars if not os.getenv(var)]
+
+if missing_vars:
+    print("❌ ERROR: Missing required environment variables:")
+    for var in missing_vars:
+        print(f"   - {var}")
+    print("\n📝 Please create a .env file with the required variables.")
+    print("   You can copy env_template.txt to .env and fill in your values.")
+    print("   Get your credentials from: https://developers.facebook.com/")
+    print("\n🔧 For testing, you can also set these as environment variables:")
+    for var in missing_vars:
+        print(f"   export {var}=your_value_here")
+    
+    # Exit gracefully instead of continuing with None handlers
+    import sys
+    sys.exit(1)
+
 try:
     messaging_handler = MessagingHandler()
     template_handler = TemplateHandler()
@@ -29,14 +48,13 @@ try:
     legacy_handler = WhatsAppHandler()
     print("✅ All handlers initialized successfully")
 except Exception as e:
-    print(f"Warning: Some handlers couldn't be initialized: {e}")
-    print("Make sure all required environment variables are set:")
-    print("- META_ACCESS_TOKEN")
-    print("- META_PHONE_NUMBER_ID") 
-    print("- META_BUSINESS_ACCOUNT_ID (for templates and business operations)")
+    print(f"❌ ERROR: Failed to initialize handlers: {e}")
+    print("Please check your environment variables and try again.")
+    import sys
+    sys.exit(1)
 
 # Create FastMCP app
-mcp = FastMCP(title="WhatsApp Cloud API Comprehensive Server")
+mcp = FastMCP()
 
 # Sample contacts for the resource
 contacts = [
@@ -73,15 +91,14 @@ async def send_whatsapp_message(phone_number: str, message: str) -> dict:
 # ================================
 
 # Import and register all comprehensive tools
-if all([messaging_handler, template_handler, business_handler, media_handler]):
-    try:
-        from comprehensive_tools import register_comprehensive_tools
-        register_comprehensive_tools(mcp, messaging_handler, template_handler, business_handler, media_handler)
-        print("✅ Comprehensive tools registered successfully")
-    except Exception as e:
-        print(f"Warning: Could not register comprehensive tools: {e}")
-else:
-    print("ℹ️  Comprehensive tools not registered (handlers not initialized - check environment variables)")
+try:
+    from comprehensive_tools import register_comprehensive_tools
+    register_comprehensive_tools(mcp, messaging_handler, template_handler, business_handler, media_handler)
+    print("✅ Comprehensive tools registered successfully")
+except Exception as e:
+    print(f"❌ ERROR: Could not register comprehensive tools: {e}")
+    import sys
+    sys.exit(1)
 
 # ================================
 # RESOURCES

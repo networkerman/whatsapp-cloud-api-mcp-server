@@ -1,6 +1,6 @@
-# WhatsApp Cloud API Comprehensive MCP Server
+# WhatsApp Cloud API MCP Server
 
-This is a comprehensive MCP (Model Context Protocol) server that provides full access to the WhatsApp Cloud API capabilities, including messaging, templates, business management, media handling, and more.
+A clean, simple MCP (Model Context Protocol) server that provides comprehensive access to the WhatsApp Cloud API capabilities, including messaging, templates, business management, and media handling.
 
 ## Author
 
@@ -25,27 +25,82 @@ LinkedIn: [@udayan-das-chowdhury8329](https://www.linkedin.com/in/udayan-das-cho
 ### 📱 **Based on Official API**
 Built from the official [WhatsApp Cloud API Postman collection](https://www.postman.com/meta/whatsapp-business-platform/collection/wlk6lh4/whatsapp-cloud-api), ensuring 100% API compatibility and coverage.
 
-## 🚀 Quick Start Installation
-
-> **Important:** This is a comprehensive WhatsApp Cloud API MCP server that requires proper setup to function correctly.
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Python 3.12 or higher** - Required for modern async support
-- **uv (Python package manager)** - Fast Python package installer
+- **Python 3.10 or higher** - Required for MCP support
 - **Meta WhatsApp Business API credentials** - Get these from [Meta Business](https://business.facebook.com/)
 
 ### Step-by-Step Installation
 
-1. **Install dependencies:**
+1. **Clone the repository:**
    ```bash
-   uv pip install -e .
+   git clone <your-repo-url>
+   cd whatsapp-cloud-api-mcp-server
    ```
 
-2. **Verify installation:**
+2. **Set up environment variables:**
    ```bash
-   uv run python -c "import mcp_server; print('Installation successful!')"
+   # Run the setup script to create .env file
+   python setup.py
+   
+   # Then edit .env file with your actual credentials
+   # Or set environment variables directly:
+   export META_ACCESS_TOKEN=your_access_token_here
+   export META_PHONE_NUMBER_ID=your_phone_number_id_here
    ```
+
+3. **Install dependencies:**
+   ```bash
+   # Create virtual environment
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
+
+4. **Verify installation:**
+   ```bash
+   python diagnose.py
+   ```
+
+### Troubleshooting Connection Issues
+
+If you're getting "Server disconnected" errors when connecting to Claude, run the diagnostic script:
+
+```bash
+python diagnose.py
+```
+
+This will check your setup and identify common issues like:
+
+1. **Python version incompatibility** - MCP requires Python 3.10+
+2. **Missing environment variables** - Required WhatsApp API credentials
+3. **Missing dependencies** - Required Python packages
+4. **Configuration errors** - Invalid API credentials
+
+**Quick fixes:**
+
+```bash
+# 1. Check your setup
+python diagnose.py
+
+# 2. If Python version is wrong (3.9.x), upgrade:
+brew install python@3.12
+
+# 3. If missing .env file:
+python setup.py
+
+# 4. If missing dependencies:
+pip install mcp httpx python-dotenv
+
+# 5. Run diagnostic again
+python diagnose.py
+```
+
+For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Environment Variables
 
@@ -68,19 +123,19 @@ WHATSAPP_API_VERSION=v22.0
 
 ### Standalone Mode
 ```bash
-uv run python main.py
+python main.py
 ```
 
-### Integration with Claude Local
+### Integration with Claude Desktop
 Add to your Claude configuration:
 
 ```json
 {
     "mcpServers": {
         "whatsapp": {
-            "command": "uv",
-            "args": ["run", "python", "main.py"],
-            "cwd": "/path/to/whatsapp-cloud-api-mcp-server",
+            "command": "/path/to/your/project/venv/bin/python",
+            "args": ["main.py"],
+            "cwd": "/path/to/your/project",
             "env": {
                 "META_ACCESS_TOKEN": "your-token-here",
                 "META_PHONE_NUMBER_ID": "your-phone-id-here",
@@ -90,139 +145,6 @@ Add to your Claude configuration:
     }
 }
 ```
-
-## 🌐 Remote Deployment Options
-
-### Option 1: HTTP REST API Server (Recommended for Public Access)
-
-Deploy as a traditional HTTP REST API that can be accessed from anywhere:
-
-```bash
-# Run locally
-python server_http.py
-
-# Or use the deployment script
-./deploy.sh
-```
-
-**Features:**
-- 🌐 Standard HTTP REST API (Port 8080)
-- 📚 Auto-generated API documentation at `/docs`
-- 🔍 Health checks at `/health`
-- 🧭 CORS enabled for web clients
-- 📱 All WhatsApp operations via HTTP endpoints
-
-**API Endpoints:**
-- `POST /api/v1/messaging/send-text` - Send text messages
-- `POST /api/v1/messaging/send-image` - Send images
-- `POST /api/v1/templates/send` - Send template messages
-- `GET /api/v1/templates/` - List templates
-- `GET /api/v1/business/profile` - Get business profile
-
-### Option 2: SSE MCP Server
-
-Deploy with Server-Sent Events for MCP protocol compatibility:
-
-```bash
-# Run locally
-python server_sse.py
-
-# Access via SSE endpoint
-# http://localhost:8000/sse
-```
-
-**Features:**
-- 📡 Native MCP protocol support (Port 8000)
-- 🔄 Real-time bidirectional communication
-- 🛠️ Full tool and resource support
-- 🔌 Compatible with MCP clients
-
-### 🐳 Docker Deployment
-
-#### Quick Start with Docker
-```bash
-# Copy environment template
-cp .env.example .env
-# Edit .env with your WhatsApp credentials
-
-# HTTP Server
-docker build -t whatsapp-mcp .
-docker run -p 8080:8080 --env-file .env whatsapp-mcp python server_http.py
-
-# SSE Server
-docker run -p 8000:8000 --env-file .env whatsapp-mcp python server_sse.py
-```
-
-#### Docker Compose (Production Ready)
-```bash
-# HTTP Server only
-docker-compose up whatsapp-mcp-http
-
-# SSE Server only
-docker-compose --profile sse up whatsapp-mcp-sse
-
-# Both servers
-docker-compose --profile sse up
-```
-
-### ☁️ Cloud Deployment
-
-#### Railway (Recommended)
-1. Connect your GitHub repository to Railway
-2. Set environment variables in Railway dashboard
-3. Deploy automatically
-
-#### Heroku
-1. Create `Procfile`: `web: python server_http.py`
-2. Set Config Vars with environment variables
-3. Deploy via Git
-
-#### Digital Ocean App Platform
-1. Connect GitHub repository
-2. Configure environment variables
-3. Auto-deploy on push
-
-#### VPS Deployment
-```bash
-# On your VPS
-git clone https://github.com/your-username/whatsapp-cloud-api-mcp-server.git
-cd whatsapp-cloud-api-mcp-server
-cp .env.example .env
-# Edit .env with your credentials
-docker-compose up -d
-```
-
-### 🔧 Environment Variables for Deployment
-
-```bash
-# Required for all operations
-META_ACCESS_TOKEN=your_meta_access_token
-META_PHONE_NUMBER_ID=your_phone_number_id
-
-# Business Account IDs (use both for maximum compatibility)
-META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id  # For templates and business operations
-WABA_ID=your_waba_id                                    # For phone numbers and WABA operations
-
-# Server Config
-HTTP_SERVER_HOST=0.0.0.0  # For public access
-HTTP_SERVER_PORT=8080
-MCP_SERVER_HOST=0.0.0.0
-MCP_SERVER_PORT=8000
-```
-
-### 🚀 Quick Deployment Script
-
-Use the included deployment script for easy setup:
-
-```bash
-./deploy.sh
-```
-
-This interactive script guides you through:
-- Environment validation
-- Server mode selection (HTTP/SSE)
-- Docker deployment options
-- Cloud deployment guidance
 
 ## Available Tools
 
@@ -338,43 +260,31 @@ await create_message_template(
 )
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **FastMCP Import Error**:
-   - Verify that the `mcp` package is installed correctly:
-     ```bash
-     uv pip install mcp==1.6.0
-     ```
-
-2. **Environment Variables Error**:
-   - Make sure the environment variables are correctly set in your Claude Local configuration
-   - Verify that the variable values are correct
-
-3. **Error when running with uv run**:
-   - Try clearing the uv cache:
-     ```bash
-     uv cache clean
-     ```
-   - Reinstall dependencies:
-     ```bash
-     uv pip install -e .
-     ```
-
 ## Project Structure
 
 ```
 whatsapp-cloud-api-mcp-server/
 ├── main.py                  # Server entry point
-├── mcp_server/              # Main module
+├── comprehensive_tools.py   # All tool definitions
+├── mcp_server/              # Core modules
 │   ├── __init__.py          # Module initialization
-│   └── whatsapp_handler.py  # WhatsApp message handler
-├── pyproject.toml           # Project configuration
+│   ├── base_handler.py      # Base WhatsApp handler
+│   ├── messaging_handler.py # Messaging operations
+│   ├── template_handler.py  # Template operations
+│   ├── business_handler.py  # Business operations
+│   ├── media_handler.py     # Media operations
+│   └── models.py            # Data models
+├── setup.py                 # Setup script
+├── diagnose.py              # Diagnostic script
 ├── requirements.txt         # Project dependencies
+├── pyproject.toml           # Project configuration
 └── .env                     # Environment variables (not versioned)
 ```
 
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## License
+
+This project is licensed under the MIT License.
