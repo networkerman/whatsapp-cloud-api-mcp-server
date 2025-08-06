@@ -15,9 +15,9 @@ class TemplateHandler(BaseWhatsAppHandler):
     
     def __init__(self):
         super().__init__()
-        # Validate business account ID is available for template operations
-        if not self.business_account_id:
-            raise ValueError("META_BUSINESS_ACCOUNT_ID environment variable is required for template operations")
+        # Validate WABA ID is available for template operations
+        if not (self.waba_id or self.business_account_id):
+            raise ValueError("Either WABA_ID or META_BUSINESS_ACCOUNT_ID environment variable is required for template operations")
     
     # ================================
     # TEMPLATE MANAGEMENT OPERATIONS
