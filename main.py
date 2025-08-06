@@ -1,28 +1,57 @@
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
 import os
 from dotenv import load_dotenv
-from mcp_server import WhatsAppHandler, WhatsAppMessage
-from typing import List, Dict
+
+# Import all handlers
+from mcp_server import (
+    MessagingHandler, TemplateHandler, BusinessHandler, MediaHandler,
+    WhatsAppHandler, WhatsAppMessage  # Legacy support
+)
 
 # Load environment variables
 load_dotenv()
 
-# Initialize the WhatsApp handler
-whatsapp_handler = WhatsAppHandler()
+# Initialize all handlers
+messaging_handler = None
+template_handler = None
+business_handler = None
+media_handler = None
+legacy_handler = None
+
+try:
+    messaging_handler = MessagingHandler()
+    template_handler = TemplateHandler()
+    business_handler = BusinessHandler()
+    media_handler = MediaHandler()
+    
+    # Legacy handler for backward compatibility
+    legacy_handler = WhatsAppHandler()
+    print("✅ All handlers initialized successfully")
+except Exception as e:
+    print(f"Warning: Some handlers couldn't be initialized: {e}")
+    print("Make sure all required environment variables are set:")
+    print("- META_ACCESS_TOKEN")
+    print("- META_PHONE_NUMBER_ID") 
+    print("- META_BUSINESS_ACCOUNT_ID (for templates and business operations)")
 
 # Create FastMCP app
-mcp = FastMCP(title="WhatsApp Message Sender")
+mcp = FastMCP(title="WhatsApp Cloud API Comprehensive Server")
 
-# Define contacts resource
+# Sample contacts for the resource
 contacts = [
     {"name": "João da Silva", "phone_number": "+55629999999999"},
+    {"name": "Test Contact", "phone_number": "+1234567890"},
 ]
+
+# ================================
+# LEGACY TOOLS (Backward Compatibility)
+# ================================
 
 @mcp.tool()
 async def send_whatsapp_message(phone_number: str, message: str) -> dict:
     """
-    Send a WhatsApp message to a specified phone number.
+    Send a basic WhatsApp text message (legacy function for backward compatibility).
     
     Args:
         phone_number: The recipient's phone number (with country code, e.g., +5511999999999)
@@ -31,16 +60,32 @@ async def send_whatsapp_message(phone_number: str, message: str) -> dict:
     Returns:
         dict: Response containing status and message details
     """
-    message_data = WhatsAppMessage(
-        phone_number=phone_number,
-        message=message
-    )
+    if messaging_handler is None:
+        return {"status": "error", "message": "Handler not initialized. Please check environment variables."}
     
-    if not whatsapp_handler.validate_message(message_data):
-        raise ValueError("Invalid message data")
-        
-    result = await whatsapp_handler.send_message(message_data)
-    return result
+    try:
+        return await messaging_handler.send_text_message(phone_number, message)
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+# ================================
+# REGISTER COMPREHENSIVE TOOLS
+# ================================
+
+# Import and register all comprehensive tools
+if all([messaging_handler, template_handler, business_handler, media_handler]):
+    try:
+        from comprehensive_tools import register_comprehensive_tools
+        register_comprehensive_tools(mcp, messaging_handler, template_handler, business_handler, media_handler)
+        print("✅ Comprehensive tools registered successfully")
+    except Exception as e:
+        print(f"Warning: Could not register comprehensive tools: {e}")
+else:
+    print("ℹ️  Comprehensive tools not registered (handlers not initialized - check environment variables)")
+
+# ================================
+# RESOURCES
+# ================================
 
 @mcp.resource("resource://contacts")
 async def get_contacts() -> List[Dict[str, str]]:
@@ -52,28 +97,52 @@ async def get_contacts() -> List[Dict[str, str]]:
     """
     return contacts
 
-# @mcp.tool()
-# async def send_message_to_contact(contact_name: str, message: str) -> dict:
-#     """
-#     Send a WhatsApp message to a contact by name.
+@mcp.resource("resource://templates")
+async def get_templates_resource() -> dict:
+    """
+    Get message templates as a resource.
     
-#     Args:
-#         contact_name: The name of the contact to send the message to
-#         message: The message to send
-        
-#     Returns:
-#         dict: Response containing status and message details
-#     """
-#     # Find the contact by name
-#     contact = next((c for c in contacts if c["name"].lower() == contact_name.lower()), None)
+    Returns:
+        dict: Templates data
+    """
+    if template_handler is None:
+        return {"status": "error", "message": "Template handler not initialized", "data": []}
     
-#     if not contact:
-#         raise ValueError(f"Contact '{contact_name}' not found")
-    
-#     # Send the message
-#     return await send_whatsapp_message(contact["phone_number"], message)
+    try:
+        return await template_handler.get_message_templates()
+    except Exception as e:
+        return {"status": "error", "message": str(e), "data": []}
 
+@mcp.resource("resource://business_profile")
+async def get_business_profile_resource() -> dict:
+    """
+    Get business profile as a resource.
+    
+    Returns:
+        dict: Business profile data
+    """
+    if business_handler is None:
+        return {"status": "error", "message": "Business handler not initialized", "data": {}}
+    
+    try:
+        return await business_handler.get_business_profile()
+    except Exception as e:
+        return {"status": "error", "message": str(e), "data": {}}
 
 if __name__ == "__main__":
-    # Para executar com uv run, use: uv run python main.py
+    print("🚀 Starting WhatsApp Cloud API Comprehensive MCP Server...")
+    print("📱 Supported features:")
+    print("   • Text, media, interactive, location, contact messaging")
+    print("   • Template message management and sending")
+    print("   • Business profile management")
+    print("   • Phone number operations")
+    print("   • Media upload and management")
+    print("   • Message reactions and replies")
+    print("   • Webhook operations")
+    print("\n🔧 Make sure these environment variables are set:")
+    print("   • META_ACCESS_TOKEN")
+    print("   • META_PHONE_NUMBER_ID")
+    print("   • META_BUSINESS_ACCOUNT_ID")
+    print("\n▶️  Starting server...")
+    
     mcp.run(transport='stdio')
