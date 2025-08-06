@@ -49,6 +49,10 @@ Built from the official [WhatsApp Cloud API Postman collection](https://www.post
    # Or set environment variables directly:
    export META_ACCESS_TOKEN=your_access_token_here
    export META_PHONE_NUMBER_ID=your_phone_number_id_here
+   
+   # 🔑 CRITICAL: You need BOTH Business Account ID and WABA ID for full functionality
+   export META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here
+   export WABA_ID=your_waba_id_here
    ```
 
 3. **Install dependencies:**
@@ -81,6 +85,20 @@ This will check your setup and identify common issues like:
 3. **Missing dependencies** - Required Python packages
 4. **Configuration errors** - Invalid API credentials
 
+### 🔧 **Common ID-Related Issues**
+
+**Problem:** "Tried accessing nonexisting field (message_templates) on node type (Business)"
+- **Solution:** You're using WABA ID instead of Meta Business Account ID for templates
+- **Fix:** Set `META_BUSINESS_ACCOUNT_ID` to your Meta Business Account ID (not WABA ID)
+
+**Problem:** "Tried accessing nonexisting field (phone_numbers) on node type (Business)"
+- **Solution:** You're using Meta Business Account ID instead of WABA ID for phone operations
+- **Fix:** Set `WABA_ID` to your WhatsApp Business Account ID (not Meta Business Account ID)
+
+**Problem:** Some endpoints work but others don't
+- **Solution:** You need BOTH IDs set correctly
+- **Fix:** Ensure both `META_BUSINESS_ACCOUNT_ID` and `WABA_ID` are set to their respective correct values
+
 **Quick fixes:**
 
 ```bash
@@ -107,17 +125,44 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 Set up your WhatsApp Business API credentials:
 
 ```bash
-# Required for all operations
+# 🔑 REQUIRED for all operations
 META_ACCESS_TOKEN=your_access_token_here
 META_PHONE_NUMBER_ID=your_phone_number_id_here
 
-# Business Account IDs (recommended to set both for maximum compatibility)
+# 🔑 CRITICAL: You need BOTH IDs for full functionality
 META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here  # For templates and business operations
 WABA_ID=your_waba_id_here                                    # For phone numbers and WABA operations
 
 # Optional - API version (defaults to v22.0)
 WHATSAPP_API_VERSION=v22.0
 ```
+
+### 🔍 **How to Find Your IDs**
+
+1. **Meta Business Account ID:**
+   - Go to [Meta Business Manager](https://business.facebook.com/)
+   - Navigate to Business Settings → Business Info
+   - Copy the "Business ID" (this is your Meta Business Account ID)
+
+2. **WABA ID (WhatsApp Business Account ID):**
+   - Go to [Meta Business Manager](https://business.facebook.com/)
+   - Navigate to All Tools → WhatsApp → API Setup
+   - Copy the "WhatsApp Business Account ID" (this is your WABA ID)
+
+3. **Phone Number ID:**
+   - In the same WhatsApp API Setup page
+   - Under "Phone numbers", copy the "Phone number ID"
+
+4. **Access Token:**
+   - In WhatsApp API Setup, under "Access tokens"
+   - Generate or copy your permanent access token
+
+### ⚠️ **Important Notes**
+
+- **Both IDs are different** and serve different purposes
+- **Meta Business Account ID** is used for templates and business profile operations
+- **WABA ID** is used for phone number operations and WABA-specific features
+- **Setting both ensures maximum compatibility** with all WhatsApp Cloud API features
 
 ## Running the Server
 
@@ -139,7 +184,8 @@ Add to your Claude configuration:
             "env": {
                 "META_ACCESS_TOKEN": "your-token-here",
                 "META_PHONE_NUMBER_ID": "your-phone-id-here",
-                "META_BUSINESS_ACCOUNT_ID": "your-business-account-id-here"
+                "META_BUSINESS_ACCOUNT_ID": "your-business-account-id-here",
+                "WABA_ID": "your-waba-id-here"
             }
         }
     }
