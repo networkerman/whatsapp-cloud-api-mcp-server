@@ -29,6 +29,7 @@ class BaseWhatsAppHandler:
         
         if self.business_account_id:
             self.templates_url = f"{self.base_url}/{self.business_account_id}/message_templates"
+            # Phone numbers should use WABA ID (which is stored in business_account_id for phone operations)
             self.phone_numbers_url = f"{self.base_url}/{self.business_account_id}/phone_numbers"
             self.subscriptions_url = f"{self.base_url}/{self.business_account_id}/subscribed_apps"
         

@@ -47,7 +47,22 @@ class BusinessHandler(BaseWhatsAppHandler):
     
     async def get_phone_numbers(self) -> Dict[str, Any]:
         """Get all phone numbers associated with the WABA"""
-        return await self._make_request("GET", self.phone_numbers_url)
+        # Try with current business_account_id first
+        try:
+            return await self._make_request("GET", self.phone_numbers_url)
+        except Exception as e:
+            # If that fails, it might be a permissions issue
+            # Return a helpful error message with suggestions
+            return {
+                "status": "error",
+                "message": "Unable to access phone numbers. This might be due to API permissions or incorrect business account ID.",
+                "suggestions": [
+                    "Verify your META_BUSINESS_ACCOUNT_ID is correct",
+                    "Check if your access token has the required permissions",
+                    "Try using your WABA ID instead of Meta Business Account ID"
+                ],
+                "error": str(e)
+            }
     
     async def get_phone_number_info(self, phone_number_id: Optional[str] = None) -> Dict[str, Any]:
         """Get information about a specific phone number"""
