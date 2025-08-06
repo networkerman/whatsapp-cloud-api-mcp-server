@@ -2,6 +2,12 @@
 
 This is a comprehensive MCP (Model Context Protocol) server that provides full access to the WhatsApp Cloud API capabilities, including messaging, templates, business management, media handling, and more.
 
+## Author
+
+**Udayan Das Chowdhury**  
+Lead Product Manager driving Omnichannel Product Management at Netcore Cloud  
+LinkedIn: [@udayan-das-chowdhury8329](https://www.linkedin.com/in/udayan-das-chowdhury8329/)
+
 ## Features
 
 ### 🚀 **Complete WhatsApp Cloud API Coverage**
@@ -27,13 +33,7 @@ Built from the official [WhatsApp Cloud API Postman collection](https://www.post
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/deuslirio/mcp-server-whatsapp-message.git
-cd mcp-server-whatsapp-message
-```
-
-2. Install dependencies using uv:
+1. Install dependencies using uv:
 ```bash
 uv pip install -e .
 ```
@@ -70,7 +70,7 @@ Add to your Claude configuration:
         "whatsapp": {
             "command": "uv",
             "args": ["run", "python", "main.py"],
-            "cwd": "/path/to/mcp-server-whatsapp-message",
+            "cwd": "/path/to/whatsapp-cloud-api-mcp-server",
             "env": {
                 "META_ACCESS_TOKEN": "your-token-here",
                 "META_PHONE_NUMBER_ID": "your-phone-id-here",
@@ -238,7 +238,7 @@ Here are some screenshots demonstrating the WhatsApp Message Sender MCP Tool in 
 ## Project Structure
 
 ```
-mcp-server-whatsapp-message/
+whatsapp-cloud-api-mcp-server/
 ├── main.py                  # Server entry point
 ├── mcp_server/              # Main module
 │   ├── __init__.py          # Module initialization
