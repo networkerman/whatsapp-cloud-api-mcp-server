@@ -1,3 +1,9 @@
+# Environment files with secrets
+.env
+.env.local
+.env.production
+.env.development
+
 # Python
 __pycache__/
 *.py[cod]
@@ -16,25 +22,15 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
 # Virtual environments
-.env
-.venv
-env/
 venv/
+env/
 ENV/
-env.bak/
-venv.bak/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
 
 # IDE
 .vscode/
@@ -43,19 +39,28 @@ venv.bak/
 *.swo
 *~
 
+# Logs
+*.log
+logs/
+
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# MCP specific
-*.log
-.mcp/
+# Railway
+.railway/
 
-# WhatsApp API
-*.pem
-*.key
+# Temporary files
+*.tmp
+*.temp
+
+# Credentials and sensitive data
+credentials.json
+secrets.json
+config.json
+tokens.txt
+
+# Any file with 'secret' or 'token' in the name
+*secret*
+*token*
+*credential*
