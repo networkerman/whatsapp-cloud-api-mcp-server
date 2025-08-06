@@ -83,13 +83,15 @@ async def startup_event():
     """Initialize handlers on startup."""
     global messaging_handler, template_handler, business_handler, media_handler
     
-    # Validate environment variables
+    # Check for environment variables
     required_vars = ["META_ACCESS_TOKEN", "META_PHONE_NUMBER_ID"]
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:
-        logger.error(f"❌ Missing required environment variables: {missing_vars}")
-        raise RuntimeError(f"Missing environment variables: {missing_vars}")
+        logger.warning(f"⚠️  Missing environment variables: {missing_vars}")
+        logger.info("🔧 Server will run in demo mode - configure environment variables to enable WhatsApp functionality")
+        logger.info("📚 See deployment documentation: https://github.com/networkerman/whatsapp-cloud-api-mcp-server#deployment")
+        return
     
     try:
         messaging_handler = MessagingHandler()
@@ -97,9 +99,10 @@ async def startup_event():
         business_handler = BusinessHandler()
         media_handler = MediaHandler()
         logger.info("✅ All handlers initialized successfully")
+        logger.info("🚀 WhatsApp Cloud API functionality is active")
     except Exception as e:
-        logger.error(f"❌ Handler initialization failed: {e}")
-        raise RuntimeError(f"Handler initialization failed: {e}")
+        logger.warning(f"⚠️  Handler initialization failed: {e}")
+        logger.info("🔧 Server running in demo mode - check your WhatsApp API credentials")
 
 # Health check endpoint
 @app.get("/health")
@@ -117,17 +120,24 @@ async def health_check():
 @app.get("/")
 async def root():
     """API information."""
+    handlers_active = all([messaging_handler, template_handler, business_handler, media_handler])
+    
     return {
         "service": "WhatsApp Cloud API MCP Server",
         "version": "1.0.0",
+        "author": "Udayan Das Chowdhury",
+        "status": "active" if handlers_active else "demo_mode",
+        "whatsapp_functionality": "enabled" if handlers_active else "disabled - configure environment variables",
         "documentation": "/docs",
         "health": "/health",
+        "github": "https://github.com/networkerman/whatsapp-cloud-api-mcp-server",
         "endpoints": {
             "messaging": "/api/v1/messaging/",
             "templates": "/api/v1/templates/",
             "business": "/api/v1/business/",
             "media": "/api/v1/media/"
-        }
+        },
+        "setup_guide": "https://github.com/networkerman/whatsapp-cloud-api-mcp-server#deployment" if not handlers_active else None
     }
 
 # ================================
