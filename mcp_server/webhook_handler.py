@@ -33,7 +33,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.subscribed_apps_url,
-                headers=self.headers
+                headers=self._prepare_headers()
             ) as response:
                 return await self._handle_response(response, "Subscribe to WABA")
     
@@ -47,7 +47,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 self.subscribed_apps_url,
-                headers=self.headers
+                headers=self._prepare_headers()
             ) as response:
                 return await self._handle_response(response, "Get subscriptions")
     
@@ -61,7 +61,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.delete(
                 self.subscribed_apps_url,
-                headers=self.headers
+                headers=self._prepare_headers()
             ) as response:
                 return await self._handle_response(response, "Unsubscribe from WABA")
     
@@ -82,7 +82,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.subscribed_apps_url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
                 return await self._handle_response(response, "Override callback URL")
@@ -102,7 +102,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get webhook verification token")
@@ -112,7 +112,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         Set webhook verification token for the app.
         
         Args:
-            verification_token: New verification token
+            verification_token: Verification token to set
             
         Returns:
             dict: Set token response
@@ -125,17 +125,17 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
                 return await self._handle_response(response, "Set webhook verification token")
     
     async def get_webhook_fields(self) -> Dict[str, Any]:
         """
-        Get webhook fields configuration for the app.
+        Get webhook fields for the app.
         
         Returns:
-            dict: Webhook fields configuration
+            dict: Webhook fields information
         """
         url = f"{self.base_url}/{os.getenv('META_APP_ID')}"
         params = {
@@ -145,7 +145,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get webhook fields")
@@ -155,7 +155,7 @@ class WebhookHandler(BaseWhatsAppHandler):
         Set webhook fields for the app.
         
         Args:
-            fields: List of webhook fields to subscribe to
+            fields: List of webhook fields to set
             
         Returns:
             dict: Set fields response
@@ -168,7 +168,32 @@ class WebhookHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
-                return await self._handle_response(response, "Set webhook fields") 
+                return await self._handle_response(response, "Set webhook fields")
+    
+    async def _handle_response(self, response, operation_name: str) -> Dict[str, Any]:
+        """Handle API response"""
+        try:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    "status": "success",
+                    "data": data,
+                    "operation": operation_name
+                }
+            else:
+                error_data = await response.json()
+                return {
+                    "status": "error",
+                    "error": error_data.get("error", {}).get("message", f"Failed to {operation_name}"),
+                    "operation": operation_name,
+                    "status_code": response.status
+                }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "operation": operation_name
+            } 

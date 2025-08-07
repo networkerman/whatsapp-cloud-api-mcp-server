@@ -39,7 +39,7 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get owned WABAs")
@@ -60,7 +60,7 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get shared WABAs")
@@ -83,7 +83,7 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get WABA details")
@@ -105,7 +105,7 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
             message_template_namespace: Optional namespace for message templates
             
         Returns:
-            dict: Created WABA details
+            dict: Created WABA information
         """
         url = f"{self.business_portfolio_url}/owned_whatsapp_business_accounts"
         payload = {
@@ -116,11 +116,11 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         
         if message_template_namespace:
             payload["message_template_namespace"] = message_template_namespace
-            
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
                 return await self._handle_response(response, "Create WABA")
@@ -133,16 +133,16 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         timezone_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Update a WABA's details.
+        Update a WABA.
         
         Args:
             waba_id: ID of the WABA to update
-            name: New name for the WABA
-            currency: New currency code
-            timezone_id: New timezone ID
+            name: New name (optional)
+            currency: New currency (optional)
+            timezone_id: New timezone ID (optional)
             
         Returns:
-            dict: Updated WABA details
+            dict: Update response
         """
         url = f"{self.base_url}/{waba_id}"
         payload = {}
@@ -153,11 +153,11 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
             payload["currency"] = currency
         if timezone_id:
             payload["timezone_id"] = timezone_id
-            
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
                 return await self._handle_response(response, "Update WABA")
@@ -170,14 +170,14 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
             waba_id: ID of the WABA to delete
             
         Returns:
-            dict: Deletion response
+            dict: Delete response
         """
         url = f"{self.base_url}/{waba_id}"
         
         async with aiohttp.ClientSession() as session:
             async with session.delete(
                 url,
-                headers=self.headers
+                headers=self._prepare_headers()
             ) as response:
                 return await self._handle_response(response, "Delete WABA")
     
@@ -188,28 +188,28 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         phone_numbers: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        Migrate account data from source WABA to target WABA.
+        Migrate account data from one WABA to another.
         
         Args:
-            source_waba_id: ID of the source WABA
-            target_waba_id: ID of the target WABA
+            source_waba_id: Source WABA ID
+            target_waba_id: Target WABA ID
             phone_numbers: Optional list of phone numbers to migrate
             
         Returns:
             dict: Migration response
         """
-        url = f"{self.base_url}/{target_waba_id}/migrate_account"
+        url = f"{self.base_url}/{source_waba_id}/migrate"
         payload = {
-            "source_waba_id": source_waba_id
+            "target_waba_id": target_waba_id
         }
         
         if phone_numbers:
             payload["phone_numbers"] = phone_numbers
-            
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 json=payload
             ) as response:
                 return await self._handle_response(response, "Migrate account")
@@ -222,7 +222,7 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         granularity: str = "DAY"
     ) -> Dict[str, Any]:
         """
-        Get insights for a specific WABA.
+        Get insights for a WABA.
         
         Args:
             waba_id: ID of the WABA
@@ -235,13 +235,38 @@ class BusinessAccountHandler(BaseWhatsAppHandler):
         """
         url = f"{self.base_url}/{waba_id}"
         params = {
-            "fields": f"insights.start({start_time}).end({end_time}).granularity({granularity})"
+            "fields": f"insights.start({start_time}),insights.end({end_time}),insights.granularity({granularity})"
         }
         
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
-                return await self._handle_response(response, "Get WABA insights") 
+                return await self._handle_response(response, "Get WABA insights")
+    
+    async def _handle_response(self, response, operation_name: str) -> Dict[str, Any]:
+        """Handle API response"""
+        try:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    "status": "success",
+                    "data": data,
+                    "operation": operation_name
+                }
+            else:
+                error_data = await response.json()
+                return {
+                    "status": "error",
+                    "error": error_data.get("error", {}).get("message", f"Failed to {operation_name}"),
+                    "operation": operation_name,
+                    "status_code": response.status
+                }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "operation": operation_name
+            } 

@@ -63,7 +63,7 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 self.analytics_url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get analytics")
@@ -108,7 +108,7 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 self.analytics_url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get conversation analytics")
@@ -123,7 +123,7 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         Get quality rating for a phone number.
         
         Args:
-            phone_number_id: ID of the phone number
+            phone_number_id: Phone number ID
             start_time: Start timestamp (Unix timestamp)
             end_time: End timestamp (Unix timestamp)
             
@@ -132,13 +132,13 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         """
         url = f"{self.base_url}/{phone_number_id}"
         params = {
-            "fields": f"quality_rating.start({start_time}).end({end_time})"
+            "fields": f"quality_rating.start({start_time}),quality_rating.end({end_time})"
         }
         
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get quality rating")
@@ -154,7 +154,7 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         Get analytics for a specific phone number.
         
         Args:
-            phone_number_id: ID of the phone number
+            phone_number_id: Phone number ID
             start_time: Start timestamp (Unix timestamp)
             end_time: End timestamp (Unix timestamp)
             granularity: Granularity of data (DAY, HOUR, MONTH)
@@ -164,13 +164,13 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         """
         url = f"{self.base_url}/{phone_number_id}"
         params = {
-            "fields": f"analytics.start({start_time}).end({end_time}).granularity({granularity})"
+            "fields": f"analytics.start({start_time}),analytics.end({end_time}),analytics.granularity({granularity})"
         }
         
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
                 return await self._handle_response(response, "Get phone number analytics")
@@ -183,7 +183,7 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        Get business-level analytics.
+        Get business analytics data.
         
         Args:
             start_time: Start timestamp (Unix timestamp)
@@ -211,7 +211,32 @@ class AnalyticsHandler(BaseWhatsAppHandler):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 self.analytics_url,
-                headers=self.headers,
+                headers=self._prepare_headers(),
                 params=params
             ) as response:
-                return await self._handle_response(response, "Get business analytics") 
+                return await self._handle_response(response, "Get business analytics")
+    
+    async def _handle_response(self, response, operation_name: str) -> Dict[str, Any]:
+        """Handle API response"""
+        try:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    "status": "success",
+                    "data": data,
+                    "operation": operation_name
+                }
+            else:
+                error_data = await response.json()
+                return {
+                    "status": "error",
+                    "error": error_data.get("error", {}).get("message", f"Failed to {operation_name}"),
+                    "operation": operation_name,
+                    "status_code": response.status
+                }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "operation": operation_name
+            } 
