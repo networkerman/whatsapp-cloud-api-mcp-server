@@ -62,8 +62,7 @@ class TemplateHandler(BaseWhatsAppHandler):
         name: str,
         category: str,
         language: str,
-        components: List[Dict[str, Any]],
-        allow_category_change: bool = False
+        components: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Create a new message template with comprehensive validation"""
         
@@ -89,9 +88,6 @@ class TemplateHandler(BaseWhatsAppHandler):
             "components": components
         }
         
-        if allow_category_change:
-            payload["allow_category_change"] = True
-        
         # Proceed with API call if validation passes
         return await self._make_request("POST", self.templates_url, payload)
     
@@ -113,8 +109,7 @@ class TemplateHandler(BaseWhatsAppHandler):
         category: str,
         language: str,
         body_text: str,
-        cards: List[Dict[str, Any]],
-        allow_category_change: bool = False
+        cards: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Create a carousel template with comprehensive validation"""
         
@@ -227,8 +222,7 @@ class TemplateHandler(BaseWhatsAppHandler):
             "components": components
         }
         
-        if allow_category_change:
-            payload["allow_category_change"] = True
+
         
         # Proceed with API call if validation passes
         return await self._make_request("POST", self.templates_url, payload)
