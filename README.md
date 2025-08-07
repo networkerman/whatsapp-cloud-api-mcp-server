@@ -21,9 +21,18 @@ LinkedIn: [@udayan-das-chowdhury8329](https://www.linkedin.com/in/udayan-das-cho
 - **Phone Number Management** - Register and verify phone numbers
 - **Media Upload** - Upload and manage media files
 - **Message Status** - Mark messages as read and track delivery
+- **Advanced Features** - WhatsApp Flows, Analytics, Webhooks, Business Account Management
 
 ### 📱 **Based on Official API**
 Built from the official [WhatsApp Cloud API Postman collection](https://www.postman.com/meta/whatsapp-business-platform/collection/wlk6lh4/whatsapp-cloud-api), ensuring 100% API compatibility and coverage.
+
+### 🧪 **Comprehensive Testing Suite**
+Includes a rigorous QA testing framework with 50+ test cases covering:
+- **Stress Testing** - Multiple message types, concurrent requests
+- **Edge Case Testing** - Unicode, long messages, invalid inputs
+- **Performance Benchmarking** - Response time monitoring
+- **Error Handling** - Graceful error management
+- **API Coverage** - All endpoints and features tested
 
 ## 🚀 Quick Start
 
@@ -53,6 +62,12 @@ Built from the official [WhatsApp Cloud API Postman collection](https://www.post
    # 🔑 CRITICAL: You need BOTH Business Account ID and WABA ID for full functionality
    export META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here
    export WABA_ID=your_waba_id_here
+   
+   # 🆔 NEW: APP ID for advanced features
+   export META_APP_ID=your_meta_app_id_here
+   
+   # 📱 Testing phone number (optional)
+   export TEST_PHONE_NUMBER=your_test_phone_number_here
    ```
 
 3. **Install dependencies:**
@@ -68,6 +83,15 @@ Built from the official [WhatsApp Cloud API Postman collection](https://www.post
 4. **Verify installation:**
    ```bash
    python diagnose.py
+   ```
+
+5. **🧪 Run comprehensive QA tests (optional):**
+   ```bash
+   # Install testing dependencies
+   pip install requests python-dotenv
+   
+   # Run rigorous QA testing
+   python rigorous_qa_test.py
    ```
 
 ### Troubleshooting Connection Issues
@@ -133,6 +157,12 @@ META_PHONE_NUMBER_ID=your_phone_number_id_here
 META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here  # For templates and business operations
 WABA_ID=your_waba_id_here                                    # For phone numbers and WABA operations
 
+# 🆔 NEW: APP ID for advanced features (optional but recommended)
+META_APP_ID=your_meta_app_id_here
+
+# 📱 Testing phone number (optional)
+TEST_PHONE_NUMBER=your_test_phone_number_here
+
 # Optional - API version (defaults to v22.0)
 WHATSAPP_API_VERSION=v22.0
 ```
@@ -157,18 +187,63 @@ WHATSAPP_API_VERSION=v22.0
    - In WhatsApp API Setup, under "Access tokens"
    - Generate or copy your permanent access token
 
+5. **🆔 APP ID (NEW):**
+   - Go to [Meta for Developers](https://developers.facebook.com/)
+   - Navigate to My Apps → Your App
+   - Copy the "App ID" from the app dashboard
+   - This enables advanced features like Flows and enhanced analytics
+
 ### ⚠️ **Important Notes**
 
 - **Both IDs are different** and serve different purposes
 - **Meta Business Account ID** is used for templates and business profile operations
 - **WABA ID** is used for phone number operations and WABA-specific features
-- **Setting both ensures maximum compatibility** with all WhatsApp Cloud API features
+- **APP ID** enables advanced features like WhatsApp Flows and enhanced analytics
+- **Setting all three ensures maximum compatibility** with all WhatsApp Cloud API features
+
+## 🧪 Testing Your Setup
+
+### Quick Health Check
+```bash
+# Test basic functionality
+python diagnose.py
+```
+
+### Quick Setup Verification
+```bash
+# Run quick setup test (recommended for new users)
+python test_setup.py
+```
+
+### Comprehensive QA Testing
+```bash
+# Run the rigorous QA test suite
+python rigorous_qa_test.py
+```
+
+The QA test suite includes:
+- **40+ individual test cases**
+- **Stress testing** with multiple message types
+- **Concurrent request testing**
+- **Performance benchmarking**
+- **Error handling validation**
+- **API coverage verification**
+
+### Expected Test Results
+- **Success Rate:** 100% (all tests should pass)
+- **Performance:** Average response time < 5 seconds
+- **Coverage:** All major API endpoints tested
 
 ## Running the Server
 
 ### Standalone Mode
 ```bash
 python main.py
+```
+
+### HTTP Server Mode (for deployment)
+```bash
+python main_http.py
 ```
 
 ### Integration with Claude Desktop
@@ -185,7 +260,8 @@ Add to your Claude configuration:
                 "META_ACCESS_TOKEN": "your-token-here",
                 "META_PHONE_NUMBER_ID": "your-phone-id-here",
                 "META_BUSINESS_ACCOUNT_ID": "your-business-account-id-here",
-                "WABA_ID": "your-waba-id-here"
+                "WABA_ID": "your-waba-id-here",
+                "META_APP_ID": "your-app-id-here"
             }
         }
     }
@@ -233,6 +309,14 @@ Add to your Claude configuration:
 - `get_phone_number_info` - Get detailed phone number information
 - `register_phone_number` - Register phone numbers with 2FA
 - `verify_phone_number` - Verify phone numbers with codes
+
+### 🔄 **Advanced Features (requires APP ID)**
+- `list_flows` - List WhatsApp Flows
+- `create_flow` - Create new WhatsApp Flows
+- `get_flow` - Get specific flow details
+- `get_analytics` - Get analytics data
+- `get_webhook_subscriptions` - Manage webhook subscriptions
+- `get_business_accounts` - Manage business accounts
 
 ### ⚙️ **Utility Functions**
 - `mark_message_as_read` - Mark received messages as read
@@ -306,12 +390,23 @@ await create_message_template(
 )
 ```
 
+### Create a WhatsApp Flow (requires APP ID)
+```python
+await create_flow(
+    name="Customer Support Flow",
+    categories=["SIGN_UP", "UTILITY"]
+)
+```
+
 ## Project Structure
 
 ```
 whatsapp-cloud-api-mcp-server/
 ├── main.py                  # Server entry point
+├── main_http.py             # HTTP server for deployment
 ├── comprehensive_tools.py   # All tool definitions
+├── comprehensive_tools_extended.py  # Advanced features
+├── rigorous_qa_test.py      # Comprehensive QA testing suite
 ├── mcp_server/              # Core modules
 │   ├── __init__.py          # Module initialization
 │   ├── base_handler.py      # Base WhatsApp handler
@@ -319,13 +414,47 @@ whatsapp-cloud-api-mcp-server/
 │   ├── template_handler.py  # Template operations
 │   ├── business_handler.py  # Business operations
 │   ├── media_handler.py     # Media operations
+│   ├── flow_handler.py      # Flow operations
+│   ├── analytics_handler.py # Analytics operations
+│   ├── webhook_handler.py   # Webhook operations
+│   ├── business_account_handler.py # Business account operations
 │   └── models.py            # Data models
 ├── setup.py                 # Setup script
 ├── diagnose.py              # Diagnostic script
+├── test_setup.py            # Quick setup verification
 ├── requirements.txt         # Project dependencies
 ├── pyproject.toml           # Project configuration
 └── .env                     # Environment variables (not versioned)
 ```
+
+## 🧪 Testing Framework
+
+The project includes a comprehensive testing framework (`rigorous_qa_test.py`) that provides:
+
+### **Test Coverage**
+- **50+ individual test cases**
+- **Stress testing** with multiple message types
+- **Concurrent request testing**
+- **Performance benchmarking**
+- **Error handling validation**
+- **API coverage verification**
+
+### **Running Tests**
+```bash
+# Install testing dependencies
+pip install requests python-dotenv
+
+# Run comprehensive QA tests
+python rigorous_qa_test.py
+
+# Test with custom URL
+python rigorous_qa_test.py https://your-custom-url.com
+```
+
+### **Expected Results**
+- **Success Rate:** 100% (all tests should pass)
+- **Performance:** Average response time < 5 seconds
+- **Coverage:** All major API endpoints tested
 
 ## Contributing
 
