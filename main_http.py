@@ -9,16 +9,41 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import time
 
-# Import our MCP server components
-from mcp_server import (
-    MessagingHandler, TemplateHandler, BusinessHandler, MediaHandler,
-    FlowHandler, AnalyticsHandler, WebhookHandler, BusinessAccountHandler,
-    WhatsAppHandler
-)
+# Import our MCP server components with graceful error handling
+try:
+    from mcp_server import (
+        MessagingHandler, TemplateHandler, BusinessHandler, MediaHandler,
+        WhatsAppHandler
+    )
+    print("✅ Core handlers imported successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import some handlers: {e}")
+    MessagingHandler = TemplateHandler = BusinessHandler = MediaHandler = WhatsAppHandler = None
 
-# Import comprehensive tools
-from comprehensive_tools import register_comprehensive_tools
-from comprehensive_tools_extended import register_comprehensive_tools_extended
+# Import extended handlers with graceful error handling
+try:
+    from mcp_server import (
+        FlowHandler, AnalyticsHandler, WebhookHandler, BusinessAccountHandler
+    )
+    print("✅ Extended handlers imported successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import extended handlers: {e}")
+    FlowHandler = AnalyticsHandler = WebhookHandler = BusinessAccountHandler = None
+
+# Import comprehensive tools with graceful error handling
+try:
+    from comprehensive_tools import register_comprehensive_tools
+    print("✅ Comprehensive tools imported successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import comprehensive tools: {e}")
+    register_comprehensive_tools = None
+
+try:
+    from comprehensive_tools_extended import register_comprehensive_tools_extended
+    print("✅ Extended comprehensive tools imported successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import extended comprehensive tools: {e}")
+    register_comprehensive_tools_extended = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -74,42 +99,60 @@ async def startup_event():
     
     try:
         # Initialize core handlers
-        messaging_handler = MessagingHandler()
-        template_handler = TemplateHandler()
-        business_handler = BusinessHandler()
-        media_handler = MediaHandler()
-        whatsapp_handler = WhatsAppHandler()
+        if MessagingHandler:
+            messaging_handler = MessagingHandler()
+            logger.info("✅ Messaging handler initialized")
+        
+        if TemplateHandler:
+            template_handler = TemplateHandler()
+            logger.info("✅ Template handler initialized")
+        
+        if BusinessHandler:
+            business_handler = BusinessHandler()
+            logger.info("✅ Business handler initialized")
+        
+        if MediaHandler:
+            media_handler = MediaHandler()
+            logger.info("✅ Media handler initialized")
+        
+        if WhatsAppHandler:
+            whatsapp_handler = WhatsAppHandler()
+            logger.info("✅ WhatsApp handler initialized")
         
         # Initialize extended handlers (optional)
-        try:
-            flow_handler = FlowHandler()
-            logger.info("✅ Flow handler initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ Flow handler not initialized: {e}")
-            flow_handler = None
+        if FlowHandler:
+            try:
+                flow_handler = FlowHandler()
+                logger.info("✅ Flow handler initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ Flow handler not initialized: {e}")
+                flow_handler = None
         
-        try:
-            analytics_handler = AnalyticsHandler()
-            logger.info("✅ Analytics handler initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ Analytics handler not initialized: {e}")
-            analytics_handler = None
+        if AnalyticsHandler:
+            try:
+                analytics_handler = AnalyticsHandler()
+                logger.info("✅ Analytics handler initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ Analytics handler not initialized: {e}")
+                analytics_handler = None
         
-        try:
-            webhook_handler = WebhookHandler()
-            logger.info("✅ Webhook handler initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ Webhook handler not initialized: {e}")
-            webhook_handler = None
+        if WebhookHandler:
+            try:
+                webhook_handler = WebhookHandler()
+                logger.info("✅ Webhook handler initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ Webhook handler not initialized: {e}")
+                webhook_handler = None
         
-        try:
-            business_account_handler = BusinessAccountHandler()
-            logger.info("✅ Business Account handler initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ Business Account handler not initialized: {e}")
-            business_account_handler = None
+        if BusinessAccountHandler:
+            try:
+                business_account_handler = BusinessAccountHandler()
+                logger.info("✅ Business Account handler initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ Business Account handler not initialized: {e}")
+                business_account_handler = None
         
-        logger.info("✅ All handlers initialized successfully")
+        logger.info("✅ All available handlers initialized successfully")
     except Exception as e:
         logger.error(f"❌ Error initializing handlers: {e}")
         logger.info("🔄 Starting in demo mode")
