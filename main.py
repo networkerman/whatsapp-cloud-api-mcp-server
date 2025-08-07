@@ -2,6 +2,8 @@ from mcp.server.fastmcp import FastMCP
 from typing import List, Dict, Any, Optional
 import os
 from dotenv import load_dotenv
+import asyncio
+import time
 
 # Import all handlers
 from mcp_server import (
@@ -261,6 +263,61 @@ async def get_waba_accounts_resource() -> dict:
     except Exception as e:
         return {"status": "error", "message": str(e), "data": []}
 
+# ================================
+# HTTP ENDPOINTS FOR RAILWAY DEPLOYMENT
+# ================================
+
+@mcp.get("/health")
+async def health_check():
+    """Health check endpoint for Railway"""
+    return {
+        "status": "healthy",
+        "timestamp": time.time(),
+        "service": "WhatsApp Cloud API MCP Server",
+        "handlers": {
+            "messaging": messaging_handler is not None,
+            "templates": template_handler is not None,
+            "business": business_handler is not None,
+            "media": media_handler is not None,
+            "flows": flow_handler is not None,
+            "analytics": analytics_handler is not None,
+            "webhooks": webhook_handler is not None,
+            "business_account": business_account_handler is not None
+        },
+        "features": {
+            "total_tools": "50+ WhatsApp Cloud API tools",
+            "messaging": "Text, media, interactive, location, contact",
+            "templates": "Create, send, manage message templates",
+            "flows": "Interactive WhatsApp experiences",
+            "analytics": "Conversation, quality, business metrics",
+            "webhooks": "Event subscription management",
+            "business": "Account and phone number management"
+        }
+    }
+
+@mcp.get("/")
+async def root():
+    """Root endpoint with server information"""
+    return {
+        "service": "WhatsApp Cloud API MCP Server",
+        "version": "2.0.0",
+        "description": "Comprehensive WhatsApp Cloud API integration with 50+ tools",
+        "endpoints": {
+            "health": "/health",
+            "docs": "/docs",
+            "mcp": "stdio transport (for MCP clients)"
+        },
+        "features": [
+            "Text, media, interactive messaging",
+            "Template management and sending",
+            "WhatsApp Flows (interactive experiences)",
+            "Analytics and metrics",
+            "Webhook management",
+            "Business account management",
+            "Advanced phone operations"
+        ]
+    }
+
 if __name__ == "__main__":
     print("🚀 Starting WhatsApp Cloud API Comprehensive MCP Server...")
     print("📱 Supported features:")
@@ -284,4 +341,11 @@ if __name__ == "__main__":
     print("   • META_APP_ID (optional, for webhook management)")
     print("\n▶️  Starting server...")
     
-    mcp.run(transport='stdio')
+    # Check if we should run in HTTP mode (for Railway deployment)
+    if os.getenv("PORT"):
+        print("🌐 Starting in HTTP mode for Railway deployment")
+        port = int(os.getenv("PORT", 8080))
+        mcp.run(transport='http', port=port, host='0.0.0.0')
+    else:
+        print("🔌 Starting in stdio mode for MCP clients")
+        mcp.run(transport='stdio')
