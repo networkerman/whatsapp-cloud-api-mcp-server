@@ -142,30 +142,8 @@ async def send_whatsapp_message(phone_number: str, message: str) -> dict:
         return {"status": "error", "message": str(e)}
 
 # ================================
-# REGISTER COMPREHENSIVE TOOLS
+# TOOL REGISTRATION COMPLETE
 # ================================
-
-# Import and register all comprehensive tools
-try:
-    from comprehensive_tools import register_comprehensive_tools
-    register_comprehensive_tools(mcp, messaging_handler, template_handler, business_handler, media_handler)
-    print("✅ Core comprehensive tools registered successfully")
-except Exception as e:
-    print(f"❌ ERROR: Could not register core comprehensive tools: {e}")
-    import sys
-    sys.exit(1)
-
-# Import and register extended comprehensive tools (new features)
-try:
-    from comprehensive_tools_extended import register_comprehensive_tools_extended
-    register_comprehensive_tools_extended(
-        mcp, messaging_handler, template_handler, business_handler, media_handler,
-        flow_handler, analytics_handler, webhook_handler, business_account_handler
-    )
-    print("✅ Extended comprehensive tools registered successfully")
-except Exception as e:
-    print(f"⚠️  Could not register extended comprehensive tools: {e}")
-    print("Some advanced features may not be available")
 
 # ================================
 # RESOURCES

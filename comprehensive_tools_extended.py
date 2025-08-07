@@ -4,6 +4,13 @@ This file contains all the tool definitions with enhanced validation and constra
 """
 
 from typing import List, Dict, Any, Optional
+from mcp_server.validation import (
+    validateCompleteTemplate, formatValidationErrors, validateCharacterLimits,
+    validateEmojiLimit, validateFormatting, validateButtonText, validateUrls,
+    validatePhoneNumbers, validateTemplateName, validateTemplateCategory,
+    validateLanguageCode, validateCarouselConsistency, validateButtonCombinations,
+    validateAuthenticationFormat, validateMediaHeaders, validateComponentStructure
+)
 
 def register_comprehensive_tools_extended(mcp, messaging_handler, template_handler, business_handler, media_handler):
     """Register all comprehensive WhatsApp Cloud API tools with enhanced validation"""
