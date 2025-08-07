@@ -51,27 +51,6 @@ Includes a rigorous QA testing framework with 50+ test cases covering:
 
 2. **Set up environment variables:**
    ```bash
-   # Run the setup script to create .env file
-   python setup.py
-   
-   # Then edit .env file with your actual credentials
-   # Or set environment variables directly:
-   export META_ACCESS_TOKEN=your_access_token_here
-   export META_PHONE_NUMBER_ID=your_phone_number_id_here
-   
-   # 🔑 CRITICAL: You need BOTH Business Account ID and WABA ID for full functionality
-   export META_BUSINESS_ACCOUNT_ID=your_meta_business_account_id_here
-   export WABA_ID=your_waba_id_here
-   
-   # 🆔 NEW: APP ID for advanced features
-   export META_APP_ID=your_meta_app_id_here
-   
-   # 📱 Testing phone number (optional)
-   export TEST_PHONE_NUMBER=your_test_phone_number_here
-   ```
-
-3. **Install dependencies:**
-   ```bash
    # Create virtual environment
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -80,19 +59,61 @@ Includes a rigorous QA testing framework with 50+ test cases covering:
    pip install -r requirements.txt
    ```
 
-4. **Verify installation:**
-   ```bash
-   python diagnose.py
-   ```
-
-5. **🧪 Run comprehensive QA tests (optional):**
-   ```bash
-   # Install testing dependencies
-   pip install requests python-dotenv
+3. **Configure environment variables:**
    
+   **Option A: Railway Deployment (Recommended)**
+   - Set environment variables in Railway.app dashboard
+   - Deploy automatically with `main_http.py`
+   
+   **Option B: Local Development**
+   - Use the provided `run_server.sh` wrapper script
+   - All environment variables are configured in the script
+
+4. **🧪 Run comprehensive QA tests (optional):**
+   ```bash
    # Run rigorous QA testing
    python rigorous_qa_test.py
+   
+   # Quick setup verification
+   python test_setup.py
    ```
+
+### 🎯 **Claude Desktop Integration**
+
+1. **Create Claude configuration:**
+   ```json
+   {
+       "mcpServers": {
+           "whatsapp": {
+               "command": "/path/to/whatsapp-cloud-api-mcp-server/run_server.sh",
+               "args": [],
+               "env": {
+                   "HOME": "/Users/your-username",
+                   "LOGNAME": "your-username",
+                   "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
+                   "SHELL": "/bin/zsh",
+                   "TERM": "xterm-256color",
+                   "USER": "your-username"
+               }
+           }
+       }
+   }
+   ```
+
+2. **Restart Claude Desktop** and test WhatsApp tools
+
+### 🧪 **Testing with MCP Inspector**
+
+```bash
+# List all available tools
+npx @modelcontextprotocol/inspector --cli "/path/to/run_server.sh" --method tools/list
+
+# List all available resources
+npx @modelcontextprotocol/inspector --cli "/path/to/run_server.sh" --method resources/list
+
+# Test a specific tool
+npx @modelcontextprotocol/inspector --cli "/path/to/run_server.sh" --method tools/call --tool-name get_message_templates
+```
 
 ### Troubleshooting Connection Issues
 
@@ -456,9 +477,36 @@ python rigorous_qa_test.py https://your-custom-url.com
 - **Performance:** Average response time < 5 seconds
 - **Coverage:** All major API endpoints tested
 
+## 🎯 **Current Status & Future Plans**
+
+### ✅ **Production Ready**
+- **✅ Claude Desktop Integration**: Fully working with 50+ WhatsApp tools
+- **✅ Railway Deployment**: Live at `https://whatsapp-cloud-api-mcp-server-production.up.railway.app/`
+- **✅ MCP Inspector Testing**: All tools and resources verified
+- **✅ Comprehensive QA Suite**: 50+ test cases passing
+- **✅ Environment Management**: Proper configuration for both local and cloud deployment
+
+### 🚀 **Future Enhancements**
+- **SSE (Server-Sent Events) Support**: For real-time message delivery
+- **Enhanced Error Handling**: More granular error responses
+- **Rate Limiting**: Built-in API rate limit management
+- **Webhook Validation**: Enhanced webhook security
+- **Multi-tenant Support**: Support for multiple WhatsApp Business accounts
+
+### 🔒 **Stability Notes**
+- **Current version is production-stable**
+- **All changes are backward compatible**
+- **Environment variables are properly isolated**
+- **Deployment configurations are optimized**
+
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
+
+**⚠️ Important**: Before making changes, please:
+1. Test thoroughly with the QA suite
+2. Ensure backward compatibility
+3. Update documentation accordingly
 
 ## License
 
