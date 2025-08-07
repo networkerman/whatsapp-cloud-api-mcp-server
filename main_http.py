@@ -298,8 +298,9 @@ async def send_template(request: Dict[str, Any]):
         if not phone_number or not template_name:
             raise HTTPException(status_code=400, detail="phone_number and template_name are required")
         
-        result = await template_handler.send_template_message(
-            phone_number, template_name, language_code, body_parameters, header_parameters, reply_to_message_id
+        # Use the correct method signature
+        result = await template_handler.send_template_with_text_parameters(
+            phone_number, template_name, language_code, header_parameters, body_parameters, reply_to_message_id
         )
         return {"status": "success", "data": result}
     except Exception as e:
