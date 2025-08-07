@@ -9,6 +9,14 @@ from .models import (
     MessageTemplate, TemplateCategory, ComponentType, ParameterType,
     CurrencyObject, DateTimeObject, MediaObject
 )
+from .validation import (
+    validateCompleteTemplate, validateTemplateName, validateTemplateCategory,
+    validateLanguageCode, validateCharacterLimits, validateEmojiLimit,
+    validateFormatting, validateButtonCombinations, validateCarouselConsistency,
+    validateVariableExamples, validateButtonText, validateAuthenticationFormat,
+    validateUrls, validatePhoneNumbers, validateMediaHeaders, validateComponentStructure,
+    formatValidationErrors, ValidationResult
+)
 
 class TemplateHandler(BaseWhatsAppHandler):
     """Handler for WhatsApp message template operations"""
@@ -57,7 +65,23 @@ class TemplateHandler(BaseWhatsAppHandler):
         components: List[Dict[str, Any]],
         allow_category_change: bool = False
     ) -> Dict[str, Any]:
-        """Create a new message template"""
+        """Create a new message template with comprehensive validation"""
+        
+        # Build template data for validation
+        template_data = {
+            "name": name,
+            "category": category.upper(),
+            "language": language,
+            "components": components
+        }
+        
+        # Run comprehensive validation
+        validation_result = validateCompleteTemplate(template_data)
+        
+        if not validation_result.isValid:
+            return formatValidationErrors(validation_result)
+        
+        # Build payload for API call
         payload = {
             "name": name,
             "category": category.upper(),
@@ -68,6 +92,7 @@ class TemplateHandler(BaseWhatsAppHandler):
         if allow_category_change:
             payload["allow_category_change"] = True
         
+        # Proceed with API call if validation passes
         return await self._make_request("POST", self.templates_url, payload)
     
     async def delete_message_template(
@@ -81,6 +106,132 @@ class TemplateHandler(BaseWhatsAppHandler):
             params["hsm_id"] = hsm_id
         
         return await self._make_request("DELETE", self.templates_url, params=params)
+    
+    async def create_carousel_template(
+        self,
+        name: str,
+        category: str,
+        language: str,
+        body_text: str,
+        cards: List[Dict[str, Any]],
+        allow_category_change: bool = False
+    ) -> Dict[str, Any]:
+        """Create a carousel template with comprehensive validation"""
+        
+        # Validate carousel consistency
+        carousel_validation = validateCarouselConsistency(cards)
+        if not carousel_validation.isValid:
+            return formatValidationErrors(carousel_validation)
+        
+        # Extract all text for emoji validation
+        all_text = [body_text]
+        all_buttons = []
+        
+        for card in cards:
+            if card.get('body_text'):
+                all_text.append(card['body_text'])
+            if card.get('buttons'):
+                all_buttons.extend(card['buttons'])
+        
+        # Validate emoji limit
+        emoji_validation = validateEmojiLimit(all_text)
+        if not emoji_validation.isValid:
+            return formatValidationErrors(emoji_validation)
+        
+        # Validate body character limit
+        body_validation = validateCharacterLimits('body', body_text)
+        if not body_validation.isValid:
+            return formatValidationErrors(body_validation)
+        
+        # Validate formatting
+        format_validation = validateFormatting(body_text)
+        if not format_validation.isValid:
+            return formatValidationErrors(format_validation)
+        
+        # Validate button text
+        if all_buttons:
+            button_validation = validateButtonText(all_buttons)
+            if not button_validation.isValid:
+                return formatValidationErrors(button_validation)
+            
+            # Validate URLs
+            url_validation = validateUrls(all_buttons)
+            if not url_validation.isValid:
+                return formatValidationErrors(url_validation)
+            
+            # Validate phone numbers
+            phone_validation = validatePhoneNumbers(all_buttons)
+            if not phone_validation.isValid:
+                return formatValidationErrors(phone_validation)
+        
+        # Validate template name
+        name_validation = validateTemplateName(name)
+        if not name_validation.isValid:
+            return formatValidationErrors(name_validation)
+        
+        # Validate category
+        category_validation = validateTemplateCategory(category)
+        if not category_validation.isValid:
+            return formatValidationErrors(category_validation)
+        
+        # Validate language
+        language_validation = validateLanguageCode(language)
+        if not language_validation.isValid:
+            return formatValidationErrors(language_validation)
+        
+        # Build components for carousel template
+        components = []
+        
+        # Add body component
+        components.append({
+            "type": "BODY",
+            "text": body_text
+        })
+        
+        # Add carousel cards as components
+        for i, card in enumerate(cards):
+            card_component = {
+                "type": "CAROUSEL",
+                "index": i,
+                "body": {
+                    "text": card.get('body_text', '')
+                }
+            }
+            
+            if card.get('header'):
+                card_component["header"] = card['header']
+            
+            if card.get('buttons'):
+                card_component["buttons"] = card['buttons']
+            
+            components.append(card_component)
+        
+        # Build template data for final validation
+        template_data = {
+            "name": name,
+            "category": category.upper(),
+            "language": language,
+            "components": components
+        }
+        
+        # Run comprehensive validation
+        validation_result = validateCompleteTemplate(template_data)
+        if not validation_result.isValid:
+            return formatValidationErrors(validation_result)
+        
+        # Build payload for API call
+        payload = {
+            "name": name,
+            "category": category.upper(),
+            "language": language,
+            "components": components
+        }
+        
+        if allow_category_change:
+            payload["allow_category_change"] = True
+        
+        # Proceed with API call if validation passes
+        return await self._make_request("POST", self.templates_url, payload)
     
     # ================================
     # TEMPLATE MESSAGE SENDING

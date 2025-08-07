@@ -127,19 +127,19 @@ def register_comprehensive_tools(mcp, messaging_handler, template_handler, busin
         buttons: Optional[List[Dict[str, str]]] = None
     ) -> dict:
         """
-        Create a new message template.
+        Create a new message template with comprehensive validation.
         
         Args:
-            name: Template name (lowercase, underscore-separated)
+            name: Template name (lowercase, numbers, underscores only, max 512 chars)
             category: Template category (MARKETING, UTILITY, AUTHENTICATION)
-            language: Language code (e.g., en_US, pt_BR)
-            body_text: Main template text (can include {{1}}, {{2}} for variables)
-            header_text: Optional header text
-            footer_text: Optional footer text
-            buttons: Optional buttons [{"type": "QUICK_REPLY", "text": "Button Text"}]
+            language: Language code (e.g., en_US, es_ES)
+            body_text: Main message text (550 chars max, max 10 emojis total, format: *bold*, _italic_, ~strike~, ```mono```, no \n\n)
+            header_text: Optional header text (60 chars max)
+            footer_text: Optional footer text (60 chars max)
+            buttons: Optional list of button objects (max 20 chars each, plain text only)
             
         Returns:
-            dict: Template creation response
+            dict: Template creation response with validation results
         """
         try:
             template_data = template_handler.build_complete_template(
@@ -150,6 +150,38 @@ def register_comprehensive_tools(mcp, messaging_handler, template_handler, busin
                 template_data["category"],
                 template_data["language"],
                 template_data["components"]
+            )
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    @mcp.tool()
+    async def create_carousel_template(
+        name: str,
+        category: str,
+        language: str,
+        body_text: str,
+        cards: List[Dict[str, Any]]
+    ) -> dict:
+        """
+        Create a carousel template with comprehensive validation.
+        
+        Args:
+            name: Template name (lowercase, numbers, underscores only, max 512 chars)
+            category: Template category (MARKETING, UTILITY, AUTHENTICATION)
+            language: Language code (e.g., en_US, es_ES)
+            body_text: Main message text (550 chars max, max 10 emojis total)
+            cards: List of carousel cards (2-10 cards, identical structure required)
+                Each card should have:
+                - body_text: Card body text
+                - header: Optional header object with format and example
+                - buttons: Optional list of button objects (max 2 per card)
+                
+        Returns:
+            dict: Template creation response with validation results
+        """
+        try:
+            return await template_handler.create_carousel_template(
+                name, category, language, body_text, cards
             )
         except Exception as e:
             return {"status": "error", "message": str(e)}

@@ -92,6 +92,25 @@ except Exception as e:
 # Create FastMCP app
 mcp = FastMCP()
 
+# Register comprehensive tools with enhanced validation
+try:
+    from comprehensive_tools_extended import register_comprehensive_tools_extended
+    register_comprehensive_tools_extended(
+        mcp, messaging_handler, template_handler, business_handler, media_handler
+    )
+    print("✅ Enhanced validation tools registered successfully")
+except Exception as e:
+    print(f"⚠️  Enhanced validation tools not registered: {e}")
+    # Fallback to basic comprehensive tools
+    try:
+        from comprehensive_tools import register_comprehensive_tools
+        register_comprehensive_tools(
+            mcp, messaging_handler, template_handler, business_handler, media_handler
+        )
+        print("✅ Basic comprehensive tools registered successfully")
+    except Exception as e2:
+        print(f"⚠️  Basic comprehensive tools not registered: {e2}")
+
 # Sample contacts for the resource
 contacts = [
     {"name": "João da Silva", "phone_number": "+55629999999999"},

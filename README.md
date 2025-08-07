@@ -26,6 +26,23 @@ LinkedIn: [@udayan-das-chowdhury8329](https://www.linkedin.com/in/udayan-das-cho
 ### 📱 **Based on Official API**
 Built from the official [WhatsApp Cloud API Postman collection](https://www.postman.com/meta/whatsapp-business-platform/collection/wlk6lh4/whatsapp-cloud-api), ensuring 100% API compatibility and coverage.
 
+### 🛡️ **Enhanced Template Validation System**
+Comprehensive validation to prevent common WhatsApp template creation errors:
+
+- **Character Limit Validation**: Enforces WhatsApp's character limits (body: 550, header: 60, footer: 60, button: 20)
+- **Emoji Counter**: Tracks and limits emojis across all template text (max 10 total)
+- **Formatting Validator**: Validates WhatsApp formatting syntax (*bold*, _italic_, ~strike~, ```mono```)
+- **Button Combination Validator**: Ensures valid button combinations for different template types
+- **Carousel Consistency Validator**: Validates carousel card structure consistency
+- **Variable-Example Validator**: Ensures proper variable numbering and example count matching
+- **Button Text Validator**: Validates button text content (no emojis, formatting, or line breaks)
+- **Authentication Template Validator**: Ensures proper authentication template format
+- **Template Name Validator**: Validates template name format and length
+- **URL Format Validator**: Ensures HTTPS URLs and proper length limits
+- **Phone Number Validator**: Validates international phone number format
+- **Media Format Validator**: Validates media header formats and file extensions
+- **Component Structure Validator**: Ensures proper component structure and requirements
+
 ### 🧪 **Comprehensive Testing Suite**
 Includes a rigorous QA testing framework with 50+ test cases covering:
 - **Stress Testing** - Multiple message types, concurrent requests
@@ -76,7 +93,20 @@ Includes a rigorous QA testing framework with 50+ test cases covering:
    
    # Quick setup verification
    python test_setup.py
+   
+   # Test enhanced validation features
+   python test_validation.py
    ```
+
+### 🎯 **Enhanced Template Tools**
+
+The server includes enhanced template creation tools with comprehensive validation:
+
+- **`create_message_template_enhanced`**: Template creation with comprehensive validation
+- **`create_carousel_template_enhanced`**: Carousel template creation with validation
+- **`create_authentication_template`**: Authentication template creation with format validation
+- **`create_template_with_media_header`**: Media header template creation with validation
+- **`validate_template_data`**: Pre-creation template validation
 
 ### 🎯 **Claude Desktop Integration**
 
