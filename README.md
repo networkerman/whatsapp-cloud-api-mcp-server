@@ -1,5 +1,7 @@
 # WhatsApp Cloud API MCP Server
 
+> ⚠️ NEW: [Claude Usage Guide for WhatsApp Templates](#🧠-claude-usage-guide-for-whatsapp-business-api-mcp) – Ensure Meta-compliant messages with strict MCP validation
+
 A clean, simple MCP (Model Context Protocol) server that provides comprehensive access to the WhatsApp Cloud API capabilities, including messaging, templates, business management, and media handling.
 
 ## Author
@@ -50,6 +52,9 @@ Includes a rigorous QA testing framework with 50+ test cases covering:
 - **Performance Benchmarking** - Response time monitoring
 - **Error Handling** - Graceful error management
 - **API Coverage** - All endpoints and features tested
+
+### 🔍 **Claude Integration for Template Validation**
+Prompt Claude with structured inputs to auto-generate templates that pass Meta's strict format checks (e.g., character limits, emoji usage, formatting rules).
 
 ## 🚀 Quick Start
 
@@ -108,7 +113,146 @@ The server includes enhanced template creation tools with comprehensive validati
 - **`create_template_with_media_header`**: Media header template creation with validation
 - **`validate_template_data`**: Pre-creation template validation
 
+## 🧠 Claude Usage Guide for WhatsApp Business API MCP
+
+> 🚀 NEW: Claude Setup & Prompt for WhatsApp Template Validation with MCP
+
+This section outlines how to use **Claude AI with the WhatsApp Business API MCP** for creating **Meta-compliant templates** with **strict validation**. It ensures that every message template you generate adheres to the latest [Meta WhatsApp Business API](https://developers.facebook.com/docs/whatsapp/cloud-api) constraints.
+
+---
+
+### 🛠 Claude Setup Prompt
+
+Copy and paste this to Claude when working on WhatsApp templates:
+
+You now have access to WhatsApp Business API MCP tools with strict validation built-in. These tools enforce Meta's constraints and will prevent you from creating invalid templates.
+
+**Critical Constraints You Must Follow**
+
+**Character Limits (Strictly Enforced):**
+- Body text: 550 characters maximum
+- Header text: 60 characters
+- Footer text: 60 characters
+- Button text: 20 characters each
+
+**Content Rules:**
+- Max 10 emojis total (across all parts of the template)
+- No consecutive line breaks (\n\n disallowed)
+- Formatting syntax: *bold*, _italic_, ~strike~, ```mono```
+- Button text: Plain text only — no emojis, formatting, or variables
+
+**Template Types & Button Limits:**
+- Marketing/Utility: Max 10 buttons total
+- Carousel: Max 2 buttons per card, identical button structure on all cards
+- Authentication: Only 1 OTP button, fixed format
+
+**How to Use**
+
+✅ **Provide complete instructions:**
+"Create a carousel template for 3 products with variables for product name and price, plus quick reply and URL buttons."
+
+✅ **Include realistic example values:**
+"Variable {{1}} = 'Premium Coffee Beans'" (not "Product Name")
+
+✅ **Specify valid button combinations:**
+Example: [QUICK_REPLY + URL] on all carousel cards
+
+---
+
+📛 **Handling Validation Errors**
+
+The MCP will return structured error messages when something breaks:
+
+```json
+{
+  "errors": [
+    {
+      "field": "body_text",
+      "issue": "Exceeds character limit",
+      "current": 623,
+      "limit": 550,
+      "fix": "Reduce by 73 characters"
+    }
+  ]
+}
+```
+
+🚫 **Don't guess — follow the exact feedback.**
+
+---
+
+🔐 **Special Rules: Authentication Templates**
+- Copy Code: Simple OTP with a copy button
+- One-Tap: Android autofill (needs app package + hash)
+- Zero-Tap: Android broadcast OTP
+
+All use: {{1}} is your verification code
+
+---
+
+✅ **MCP Enforces:**
+- Character & emoji limits
+- Formatting correctness
+- Button validation (combo & count)
+- Structural & variable-example consistency
+
+❌ **MCP Cannot Check:**
+- Brand tone or content quality
+- Cultural/contextual appropriateness
+- Meta approval probability
+
+---
+
+🧩 **Best Practices**
+1. Start with template type (marketing, utility, auth, carousel)
+2. Keep body ≤ 550 characters
+3. Use ≤ 10 emojis
+4. Avoid \n\n
+5. Use realistic placeholder values
+6. Respect button structure rules
+
+---
+
+💡 **Example Claude Request**
+
+**Good:**
+"Create a utility template for order confirmations with variables {{1}} (customer name) and {{2}} (order number). Include a URL button. Stay under 550 characters."
+
+**Bad:**
+"Make a confirmation template"
+
+---
+
+⚙️ **About This Project**
+
+This MCP (Model Context Protocol) system was created to streamline WhatsApp Cloud API template generation and enforce Meta's compliance constraints programmatically.
+
+🧠 **Built by:**
+Udayan Das Chowdhury, Lead Product Manager @ Netcore Cloud  
+Specializing in CPaaS (WhatsApp, RCS, SMS) and API-first MarTech infrastructure.  
+[LinkedIn](https://www.linkedin.com/in/udayan-das-chowdhury8329/)
+
+---
+
+🔍 **SEO Keywords (for better discovery)**
+
+Searchable terms for developers & product managers:
+
+- WhatsApp Business API template generator
+- WhatsApp Cloud API MCP
+- WhatsApp Claude prompt
+- WhatsApp template validator
+- Meta compliant WhatsApp messages
+- WhatsApp MCP server Python
+- WhatsApp MCP for Claude AI
+- Meta template character limit
+- Carousel WhatsApp template rules
+- WhatsApp Marketing template creation
+- OTP template WhatsApp validation
+
 ### 🎯 **Claude Desktop Integration**
+
+Claude can now be prompted with strict validation rules for WhatsApp template creation. See **Claude Usage Guide** above.
 
 1. **Create Claude configuration:**
    ```json
