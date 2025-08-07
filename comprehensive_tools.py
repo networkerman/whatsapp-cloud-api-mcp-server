@@ -142,14 +142,39 @@ def register_comprehensive_tools(mcp, messaging_handler, template_handler, busin
             dict: Template creation response with validation results
         """
         try:
-            template_data = template_handler.build_complete_template(
-                name, category, language, header_text, body_text, footer_text, buttons
-            )
+            # Build components list with enhanced validation
+            components = []
+            
+            # Add header if provided
+            if header_text:
+                components.append({
+                    "type": "HEADER",
+                    "format": "TEXT",
+                    "text": header_text
+                })
+            
+            # Add body (required)
+            components.append({
+                "type": "BODY",
+                "text": body_text
+            })
+            
+            # Add footer if provided
+            if footer_text:
+                components.append({
+                    "type": "FOOTER",
+                    "text": footer_text
+                })
+            
+            # Add buttons if provided
+            if buttons:
+                components.append({
+                    "type": "BUTTONS",
+                    "buttons": buttons
+                })
+            
             return await template_handler.create_message_template(
-                template_data["name"],
-                template_data["category"],
-                template_data["language"],
-                template_data["components"]
+                name, category, language, components
             )
         except Exception as e:
             return {"status": "error", "message": str(e)}
